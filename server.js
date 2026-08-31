@@ -1,3 +1,4 @@
+
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -41,12 +42,57 @@ app.use(express.static(publicPath));
 // MYSQL
 // ==========================================
 
+// Railway uses:
+// MYSQLHOST
+// MYSQLPORT
+// MYSQLUSER
+// MYSQLPASSWORD
+// MYSQLDATABASE
+
+const MYSQL_HOST = process.env.MYSQLHOST;
+const MYSQL_PORT = Number(process.env.MYSQLPORT) || 3306;
+const MYSQL_USER = process.env.MYSQLUSER;
+const MYSQL_PASSWORD = process.env.MYSQLPASSWORD;
+const MYSQL_DATABASE = process.env.MYSQLDATABASE;
+
+console.log("==========================================");
+console.log("MYSQL CONFIG");
+console.log("HOST:", MYSQL_HOST || "MISSING");
+console.log("PORT:", MYSQL_PORT);
+console.log("USER:", MYSQL_USER || "MISSING");
+console.log(
+    "PASSWORD EXISTS:",
+    Boolean(MYSQL_PASSWORD)
+);
+console.log(
+    "PASSWORD LENGTH:",
+    MYSQL_PASSWORD
+        ? MYSQL_PASSWORD.length
+        : 0
+);
+console.log(
+    "DATABASE:",
+    MYSQL_DATABASE || "MISSING"
+);
+console.log("==========================================");
+
+if (
+    !MYSQL_HOST ||
+    !MYSQL_USER ||
+    !MYSQL_PASSWORD ||
+    !MYSQL_DATABASE
+) {
+    console.error(
+        "❌ MYSQL ENVIRONMENT VARIABLES ARE MISSING!"
+    );
+}
+
 const db = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    port: Number(process.env.MYSQL_PORT) || 3306,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
+    host: MYSQL_HOST,
+    port: MYSQL_PORT,
+    user: MYSQL_USER,
+    password: MYSQL_PASSWORD,
+    database: MYSQL_DATABASE,
 
     waitForConnections: true,
     connectionLimit: 10,
@@ -61,12 +107,27 @@ async function testDatabase() {
     try {
         const connection = await db.getConnection();
 
-        console.log("MySQL connected successfully!");
+        console.log(
+            "✅ MySQL connected successfully!"
+        );
 
         connection.release();
+
     } catch (error) {
-        console.error("MySQL connection failed!");
-        console.error(error.message);
+
+        console.error(
+            "❌ MySQL connection failed!"
+        );
+
+        console.error(
+            "Code:",
+            error.code
+        );
+
+        console.error(
+            "Message:",
+            error.message
+        );
     }
 }
 
@@ -82,6 +143,7 @@ const storage = multer.diskStorage({
     },
 
     filename: function (req, file, cb) {
+
         const ext = path
             .extname(file.originalname)
             .toLowerCase();
@@ -101,7 +163,9 @@ const storage = multer.diskStorage({
 // ==========================================
 
 function fileFilter(req, file, cb) {
+
     const allowedTypes = [
+
         // Images
         "image/jpeg",
         "image/jpg",
@@ -115,7 +179,7 @@ function fileFilter(req, file, cb) {
         "video/ogg",
         "video/quicktime",
 
-        // Voice / Audio
+        // Audio
         "audio/webm",
         "audio/ogg",
         "audio/mp4",
@@ -126,8 +190,11 @@ function fileFilter(req, file, cb) {
     ];
 
     if (allowedTypes.includes(file.mimetype)) {
+
         cb(null, true);
+
     } else {
+
         cb(
             new Error(
                 "Only image, video and audio files are allowed"
@@ -166,6 +233,7 @@ function getTypingKey(senderId, receiverId) {
 }
 
 function clearTypingTimer(senderId, receiverId) {
+
     const key = getTypingKey(
         senderId,
         receiverId
@@ -174,7 +242,9 @@ function clearTypingTimer(senderId, receiverId) {
     const timer = typingTimers.get(key);
 
     if (timer) {
+
         clearTimeout(timer);
+
         typingTimers.delete(key);
     }
 }
@@ -186,6 +256,7 @@ function clearTypingTimer(senderId, receiverId) {
 const activeCalls = new Map();
 
 function getCallKey(user1, user2) {
+
     const a = Number(user1);
     const b = Number(user2);
 
@@ -195,6 +266,7 @@ function getCallKey(user1, user2) {
 }
 
 function isAllowedPair(user1, user2) {
+
     const a = Number(user1);
     const b = Number(user2);
 
@@ -213,13 +285,16 @@ function getSocketByUserId(userId) {
 // ==========================================
 
 app.post("/api/login", async (req, res) => {
+
     try {
+
         const {
             username,
             pin
         } = req.body;
 
         if (!username || !pin) {
+
             return res.status(400).json({
                 success: false,
                 message:
@@ -227,24 +302,26 @@ app.post("/api/login", async (req, res) => {
             });
         }
 
-        const [users] = await db.execute(
-            `
-            SELECT
-                id,
-                username
-            FROM users
-            WHERE
-                username = ?
-                AND pin = ?
-            LIMIT 1
-            `,
-            [
-                username,
-                pin
-            ]
-        );
+        const [users] =
+            await db.execute(
+                `
+                SELECT
+                    id,
+                    username
+                FROM users
+                WHERE
+                    username = ?
+                    AND pin = ?
+                LIMIT 1
+                `,
+                [
+                    username,
+                    pin
+                ]
+            );
 
         if (users.length === 0) {
+
             return res.status(401).json({
                 success: false,
                 message:
@@ -263,6 +340,7 @@ app.post("/api/login", async (req, res) => {
         });
 
     } catch (error) {
+
         console.error(
             "Login error:",
             error
@@ -283,7 +361,9 @@ app.post("/api/login", async (req, res) => {
 app.get(
     "/api/messages/:userId/:otherUserId",
     async (req, res) => {
+
         try {
+
             const userId =
                 Number(req.params.userId);
 
@@ -294,6 +374,7 @@ app.get(
                 !userId ||
                 !otherUserId
             ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
@@ -307,6 +388,7 @@ app.get(
                     otherUserId
                 )
             ) {
+
                 return res.status(403).json({
                     success: false,
                     message:
@@ -353,6 +435,7 @@ app.get(
             });
 
         } catch (error) {
+
             console.error(
                 "Get messages error:",
                 error
@@ -375,8 +458,11 @@ app.post(
     "/api/upload",
     upload.single("media"),
     async (req, res) => {
+
         try {
+
             if (!req.file) {
+
                 return res.status(400).json({
                     success: false,
                     message:
@@ -394,6 +480,7 @@ app.post(
                 !senderId ||
                 !receiverId
             ) {
+
                 fs.unlink(
                     req.file.path,
                     () => {}
@@ -412,6 +499,7 @@ app.post(
                     receiverId
                 )
             ) {
+
                 fs.unlink(
                     req.file.path,
                     () => {}
@@ -426,30 +514,28 @@ app.post(
 
             let mediaType = "file";
 
-            // IMAGE
             if (
                 req.file.mimetype.startsWith(
                     "image/"
                 )
             ) {
-                mediaType = "image";
-            }
 
-            // VIDEO
-            else if (
+                mediaType = "image";
+
+            } else if (
                 req.file.mimetype.startsWith(
                     "video/"
                 )
             ) {
-                mediaType = "video";
-            }
 
-            // VOICE
-            else if (
+                mediaType = "video";
+
+            } else if (
                 req.file.mimetype.startsWith(
                     "audio/"
                 )
             ) {
+
                 mediaType = "voice";
             }
 
@@ -480,6 +566,7 @@ app.post(
                 );
 
             const messageData = {
+
                 id: result.insertId,
 
                 sender_id: senderId,
@@ -495,11 +582,11 @@ app.post(
                 seen: 0
             };
 
-            // SEND TO SENDER
             const senderSocketId =
                 onlineUsers.get(senderId);
 
             if (senderSocketId) {
+
                 io.to(
                     senderSocketId
                 ).emit(
@@ -508,11 +595,11 @@ app.post(
                 );
             }
 
-            // SEND TO RECEIVER
             const receiverSocketId =
                 onlineUsers.get(receiverId);
 
             if (receiverSocketId) {
+
                 io.to(
                     receiverSocketId
                 ).emit(
@@ -527,6 +614,7 @@ app.post(
             });
 
         } catch (error) {
+
             console.error(
                 "Upload error:",
                 error
@@ -536,6 +624,7 @@ app.post(
                 req.file &&
                 req.file.path
             ) {
+
                 fs.unlink(
                     req.file.path,
                     () => {}
@@ -558,11 +647,14 @@ app.post(
 app.get(
     "/api/user/:userId/status",
     async (req, res) => {
+
         try {
+
             const userId =
                 Number(req.params.userId);
 
             if (!userId) {
+
                 return res.status(400).json({
                     success: false
                 });
@@ -584,6 +676,7 @@ app.get(
                 );
 
             if (users.length === 0) {
+
                 return res.status(404).json({
                     success: false
                 });
@@ -602,6 +695,7 @@ app.get(
             });
 
         } catch (error) {
+
             console.error(
                 "User status error:",
                 error
@@ -647,6 +741,7 @@ io.on("connection", socket => {
             socket.userId = userId;
 
             try {
+
                 await db.execute(
                     `
                     UPDATE users
@@ -655,7 +750,9 @@ io.on("connection", socket => {
                     `,
                     [userId]
                 );
+
             } catch (error) {
+
                 console.error(
                     "Online update error:",
                     error.message
@@ -713,6 +810,7 @@ io.on("connection", socket => {
                 );
 
             if (receiverSocketId) {
+
                 io.to(
                     receiverSocketId
                 ).emit(
@@ -733,6 +831,7 @@ io.on("connection", socket => {
                             );
 
                         if (receiverSocket) {
+
                             io.to(
                                 receiverSocket
                             ).emit(
@@ -797,6 +896,7 @@ io.on("connection", socket => {
                 );
 
             if (receiverSocketId) {
+
                 io.to(
                     receiverSocketId
                 ).emit(
@@ -858,6 +958,7 @@ io.on("connection", socket => {
                     );
 
                 if (receiverSocketId) {
+
                     io.to(
                         receiverSocketId
                     ).emit(
@@ -889,6 +990,7 @@ io.on("connection", socket => {
                     );
 
                 const messageData = {
+
                     id: result.insertId,
 
                     sender_id: senderId,
@@ -910,6 +1012,7 @@ io.on("connection", socket => {
                 );
 
                 if (receiverSocketId) {
+
                     io.to(
                         receiverSocketId
                     ).emit(
@@ -981,6 +1084,7 @@ io.on("connection", socket => {
                     );
 
                 if (otherSocketId) {
+
                     io.to(
                         otherSocketId
                     ).emit(
@@ -1138,6 +1242,7 @@ io.on("connection", socket => {
                 );
 
             if (callerSocket) {
+
                 io.to(
                     callerSocket
                 ).emit(
@@ -1188,6 +1293,7 @@ io.on("connection", socket => {
                 );
 
             if (callerSocket) {
+
                 io.to(
                     callerSocket
                 ).emit(
@@ -1238,6 +1344,7 @@ io.on("connection", socket => {
                 );
 
             if (otherSocket) {
+
                 io.to(
                     otherSocket
                 ).emit(
@@ -1288,6 +1395,7 @@ io.on("connection", socket => {
                 );
 
             if (receiverSocket) {
+
                 io.to(
                     receiverSocket
                 ).emit(
@@ -1339,6 +1447,7 @@ io.on("connection", socket => {
                 );
 
             if (receiverSocket) {
+
                 io.to(
                     receiverSocket
                 ).emit(
@@ -1390,6 +1499,7 @@ io.on("connection", socket => {
                 );
 
             if (receiverSocket) {
+
                 io.to(
                     receiverSocket
                 ).emit(
@@ -1420,7 +1530,6 @@ io.on("connection", socket => {
                 return;
             }
 
-            // END CALLS
             for (
                 const [
                     callKey,
@@ -1445,6 +1554,7 @@ io.on("connection", socket => {
                         );
 
                     if (otherSocket) {
+
                         io.to(
                             otherSocket
                         ).emit(
@@ -1464,18 +1574,17 @@ io.on("connection", socket => {
                 }
             }
 
-            // REMOVE ONLINE
             if (
                 onlineUsers.get(
                     userId
                 ) === socket.id
             ) {
+
                 onlineUsers.delete(
                     userId
                 );
             }
 
-            // STOP TYPING
             for (
                 const key
                 of typingTimers.keys()
@@ -1506,6 +1615,7 @@ io.on("connection", socket => {
                         );
 
                     if (receiverSocket) {
+
                         io.to(
                             receiverSocket
                         ).emit(
@@ -1518,7 +1628,6 @@ io.on("connection", socket => {
                 }
             }
 
-            // OFFLINE
             if (
                 !onlineUsers.has(
                     userId
