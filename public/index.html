@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html lang="ku" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+
+```
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Private Chat</title>
+
+<link
+    rel="stylesheet"
+    href="/style.css"
+>
+```
+
+</head>
+
+<body>
+
+```
+<!-- ==========================================
+     LOGIN PAGE
+=========================================== -->
+
+<main
+    id="loginPage"
+    class="login-page"
+>
+
+    <section class="login-card">
+
+        <div class="logo">
+            💬
+        </div>
+
+        <h1>
+            Private Chat
+        </h1>
+
+        <p class="subtitle">
+            چاتی تایبەتی بۆ دوو کەس
+        </p>
+
+        <form id="loginForm">
+
+            <div class="input-group">
+
+                <label for="username">
+                    ناوی بەکارهێنەر
+                </label>
+
+                <input
+                    id="username"
+                    type="text"
+                    placeholder="user1"
+                    autocomplete="username"
+                    required
+                >
+
+            </div>
+
+            <div class="input-group">
+
+                <label for="pin">
+                    PIN
+                </label>
+
+                <input
+                    id="pin"
+                    type="password"
+                    placeholder="••••"
+                    inputmode="numeric"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                id="loginButton"
+            >
+                چوونەژوورەوە
+            </button>
+
+            <p
+                id="loginError"
+                class="error"
+            ></p>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<!-- ==========================================
+     CHAT PAGE
+=========================================== -->
+
+<main
+    id="chatPage"
+    class="chat-page hidden"
+>
+
+    <!-- HEADER -->
+
+    <header class="chat-header">
+
+        <div class="user-info">
+
+            <div class="avatar">
+                👤
+            </div>
+
+            <div class="user-details">
+
+                <h2 id="otherUsername">
+                    User 2
+                </h2>
+
+                <span id="userStatus">
+                    offline
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- HEADER ACTIONS -->
+
+        <div class="header-actions">
+
+            <button
+                type="button"
+                title="Voice Call"
+                id="voiceCallButton"
+            >
+                📞
+            </button>
+
+            <button
+                type="button"
+                title="Video Call"
+                id="videoCallButton"
+            >
+                📹
+            </button>
+
+            <button
+                type="button"
+                title="More"
+                id="moreButton"
+            >
+                ⋮
+            </button>
+
+            <button
+                type="button"
+                id="logoutButton"
+                title="Logout"
+            >
+                ↪️
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- ======================================
+         MESSAGES
+    ======================================= -->
+
+    <section
+        id="messages"
+        class="messages"
+    >
+
+        <div class="welcome-message">
+
+            <div class="welcome-icon">
+                🔒
+            </div>
+
+            <h3>
+                Private Chat
+            </h3>
+
+            <p>
+                ئەم چاتە تەنها بۆ تۆ و کەسی بەرامبەرە.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         MESSAGE AREA
+    ======================================= -->
+
+    <footer class="message-area">
+
+        <!-- Hidden file input -->
+
+        <input
+            id="mediaInput"
+            type="file"
+            accept="image/*,video/*"
+            hidden
+        >
+
+
+        <!-- Media button -->
+
+        <button
+            type="button"
+            id="mediaButton"
+            class="attach-button"
+            title="ناردنی وێنە یان ڤیدیۆ"
+            aria-label="ناردنی وێنە یان ڤیدیۆ"
+        >
+            📎
+        </button>
+
+
+        <!-- Message input -->
+
+        <input
+            id="messageInput"
+            type="text"
+            placeholder="نامە بنووسە..."
+            autocomplete="off"
+        >
+
+
+        <!-- Send -->
+
+        <button
+            type="button"
+            id="sendButton"
+            class="send-button"
+            title="ناردن"
+        >
+            ➤
+        </button>
+
+    </footer>
+
+</main>
+
+
+<!-- SOCKET.IO -->
+
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- APP SCRIPT -->
+
+<script src="/script.js"></script>
+```
+
+</body>
+
+</html>
