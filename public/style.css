@@ -1,4 +1,3 @@
-
 /* =========================================================
    RESET
 ========================================================= */
@@ -11,17 +10,21 @@
 
 :root {
     font-family: Arial, Tahoma, sans-serif;
+    color-scheme: light;
 }
 
 html,
 body {
     width: 100%;
     height: 100%;
+    min-height: 100%;
 }
 
 body {
     background: #efeae2;
     overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 button,
@@ -31,6 +34,12 @@ input {
 
 button {
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+input {
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .hidden {
@@ -39,24 +48,21 @@ button {
 
 
 /* =========================================================
-   LOGIN
+   LOGIN PAGE
 ========================================================= */
 
 .login-page {
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     padding: 20px;
-
     background:
         radial-gradient(
             circle at top,
-            #d9fdd3 0,
+            #d9fdd3 0%,
             #efeae2 45%,
             #d8dbd8 100%
         );
@@ -65,14 +71,10 @@ button {
 .login-card {
     width: 100%;
     max-width: 420px;
-
     padding: 40px 30px;
-
     background: #ffffff;
     border-radius: 24px;
-
     text-align: center;
-
     box-shadow:
         0 18px 60px rgba(0, 0, 0, 0.16);
 }
@@ -80,33 +82,29 @@ button {
 .logo {
     width: 78px;
     height: 78px;
-
     margin: 0 auto 20px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 50%;
-
     background: #25d366;
     color: #ffffff;
-
     font-size: 38px;
-
     box-shadow:
-        0 8px 25px rgba(37, 211, 102, 0.3);
+        0 8px 25px rgba(37, 211, 102, 0.30);
 }
 
 .login-card h1 {
     color: #111b21;
     font-size: 28px;
+    line-height: 1.2;
     margin-bottom: 8px;
 }
 
 .subtitle {
     color: #667781;
     font-size: 15px;
+    line-height: 1.6;
     margin-bottom: 30px;
 }
 
@@ -117,9 +115,7 @@ button {
 
 .input-group label {
     display: block;
-
     margin-bottom: 8px;
-
     color: #3b4a54;
     font-size: 14px;
     font-weight: bold;
@@ -128,27 +124,20 @@ button {
 .input-group input {
     width: 100%;
     height: 52px;
-
     padding: 0 15px;
-
     border: 1px solid #d1d7db;
     border-radius: 12px;
-
     outline: none;
-
     color: #111b21;
     background: #ffffff;
-
     font-size: 16px;
-
     transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .input-group input:focus {
     border-color: #25d366;
-
     box-shadow:
         0 0 0 3px rgba(37, 211, 102, 0.12);
 }
@@ -156,21 +145,16 @@ button {
 #loginButton {
     width: 100%;
     height: 52px;
-
     border: none;
     border-radius: 12px;
-
     background: #25d366;
     color: #ffffff;
-
     font-size: 16px;
     font-weight: bold;
-
     cursor: pointer;
-
     transition:
-        background 0.2s,
-        transform 0.12s;
+        background 0.2s ease,
+        transform 0.12s ease;
 }
 
 #loginButton:hover {
@@ -188,11 +172,10 @@ button {
 
 .error {
     min-height: 22px;
-
     margin-top: 15px;
-
     color: #d93025;
     font-size: 14px;
+    line-height: 1.5;
 }
 
 
@@ -204,11 +187,11 @@ button {
     width: 100%;
     height: 100vh;
     height: 100dvh;
-
+    min-height: 0;
     display: flex;
     flex-direction: column;
-
     background: #efeae2;
+    overflow: hidden;
 }
 
 
@@ -219,7 +202,6 @@ button {
 .chat-header {
     width: 100%;
     min-height: 68px;
-
     flex-shrink: 0;
 
     display: flex;
@@ -239,17 +221,14 @@ button {
 
 .user-info {
     min-width: 0;
-
     display: flex;
     align-items: center;
-
     gap: 10px;
 }
 
 .avatar {
     width: 46px;
     height: 46px;
-
     flex-shrink: 0;
 
     display: flex;
@@ -257,10 +236,11 @@ button {
     justify-content: center;
 
     border-radius: 50%;
-
     background: #dfe5e7;
 
     font-size: 24px;
+
+    user-select: none;
 }
 
 .user-details {
@@ -271,8 +251,8 @@ button {
     max-width: 180px;
 
     color: #ffffff;
-
     font-size: 17px;
+    line-height: 1.2;
 
     white-space: nowrap;
     overflow: hidden;
@@ -281,24 +261,29 @@ button {
 
 .user-details span {
     display: block;
-
     margin-top: 3px;
 
     color: #d9fdd3;
-
     font-size: 12px;
+    line-height: 1.2;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .header-actions {
+    flex-shrink: 0;
+
     display: flex;
     align-items: center;
-
     gap: 2px;
 }
 
 .header-actions button {
     width: 42px;
     height: 42px;
+    flex-shrink: 0;
 
     border: none;
     border-radius: 50%;
@@ -311,12 +296,11 @@ button {
     justify-content: center;
 
     font-size: 19px;
-
     cursor: pointer;
 
     transition:
-        background 0.2s,
-        transform 0.12s;
+        background 0.2s ease,
+        transform 0.12s ease;
 }
 
 .header-actions button:hover {
@@ -338,16 +322,15 @@ button {
 
 .messages {
     flex: 1;
-
     min-height: 0;
 
     overflow-y: auto;
+    overflow-x: hidden;
 
     padding: 20px 12px;
 
     display: flex;
     flex-direction: column;
-
     gap: 4px;
 
     background-color: #efeae2;
@@ -361,6 +344,14 @@ button {
     background-size: 20px 20px;
 
     scroll-behavior: smooth;
+
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba(84, 101, 111, 0.25)
+        transparent;
 }
 
 .messages::-webkit-scrollbar {
@@ -393,7 +384,6 @@ button {
 
 .welcome-icon {
     margin-bottom: 10px;
-
     font-size: 42px;
 }
 
@@ -401,15 +391,13 @@ button {
     margin-bottom: 8px;
 
     color: #54656f;
-
     font-size: 18px;
+    line-height: 1.4;
 }
 
 .welcome-message p {
     color: #667781;
-
     font-size: 14px;
-
     line-height: 1.8;
 }
 
@@ -418,23 +406,14 @@ button {
    MESSAGE ROW
 ========================================================= */
 
-/*
-    IMPORTANT:
-
-    JS creates:
-
-    message message-out
-    message message-in
-
-    So CSS must use those exact classes.
-*/
-
 .message {
-    display: flex;
-
     width: 100%;
 
+    display: flex;
+
     margin: 2px 0;
+
+    min-width: 0;
 }
 
 
@@ -477,6 +456,8 @@ button {
 
     word-break: break-word;
     overflow-wrap: anywhere;
+
+    min-width: 0;
 }
 
 
@@ -486,7 +467,6 @@ button {
 
 .message.message-out .message-bubble {
     background: #d9fdd3;
-
     border-top-right-radius: 2px;
 }
 
@@ -497,7 +477,6 @@ button {
 
 .message.message-in .message-bubble {
     background: #ffffff;
-
     border-top-left-radius: 2px;
 }
 
@@ -512,13 +491,11 @@ button {
     color: #111b21;
 
     font-size: 15px;
-
     line-height: 1.55;
 
     white-space: pre-wrap;
 
     overflow-wrap: anywhere;
-
     word-break: break-word;
 }
 
@@ -529,9 +506,7 @@ button {
 
 .message-meta {
     display: inline-flex;
-
     align-items: center;
-
     gap: 3px;
 
     margin-right: 7px;
@@ -557,7 +532,6 @@ button {
     color: #53bdeb;
 
     font-size: 13px;
-
     font-weight: bold;
 
     letter-spacing: -2px;
@@ -570,9 +544,7 @@ button {
 
 .message-area {
     width: 100%;
-
     min-height: 64px;
-
     flex-shrink: 0;
 
     display: flex;
@@ -586,11 +558,13 @@ button {
 
     border-top:
         1px solid rgba(0, 0, 0, 0.04);
+
+    padding-bottom:
+        max(8px, env(safe-area-inset-bottom));
 }
 
 .message-area input {
     flex: 1;
-
     min-width: 0;
 
     height: 48px;
@@ -603,7 +577,6 @@ button {
     border-radius: 24px;
 
     background: #ffffff;
-
     color: #111b21;
 
     font-size: 15px;
@@ -612,7 +585,7 @@ button {
         0 1px 2px rgba(0, 0, 0, 0.06);
 
     transition:
-        box-shadow 0.2s;
+        box-shadow 0.2s ease;
 }
 
 .message-area input:focus {
@@ -633,7 +606,6 @@ button {
 .send-button {
     width: 46px;
     height: 46px;
-
     flex-shrink: 0;
 
     border: none;
@@ -648,13 +620,12 @@ button {
     font-size: 20px;
 
     transition:
-        transform 0.12s,
-        background 0.2s;
+        transform 0.12s ease,
+        background 0.2s ease;
 }
 
 .attach-button {
     background: transparent;
-
     color: #54656f;
 }
 
@@ -664,7 +635,6 @@ button {
 
 .send-button {
     background: #25d366;
-
     color: #ffffff;
 
     font-size: 18px;
@@ -684,6 +654,29 @@ button {
 
 
 /* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .chat-header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .message.message-out .message-bubble,
+    .message.message-in .message-bubble {
+        max-width: 78%;
+    }
+
+    .messages {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+
+/* =========================================================
    MOBILE
 ========================================================= */
 
@@ -693,7 +686,10 @@ button {
         overflow: hidden;
     }
 
-    /* LOGIN */
+
+    /* =====================================================
+       LOGIN
+    ===================================================== */
 
     .login-page {
         min-height: 100vh;
@@ -719,22 +715,41 @@ button {
         height: 70px;
 
         font-size: 34px;
+
+        margin-bottom: 17px;
     }
 
     .subtitle {
         font-size: 14px;
-
         margin-bottom: 25px;
     }
 
+    .input-group {
+        margin-bottom: 16px;
+    }
 
-    /* HEADER */
+    .input-group input {
+        height: 50px;
+        font-size: 16px;
+    }
+
+    #loginButton {
+        height: 50px;
+    }
+
+
+    /* =====================================================
+       HEADER
+    ===================================================== */
 
     .chat-header {
         min-height: 62px;
 
         padding:
             6px 8px;
+
+        padding-top:
+            max(6px, env(safe-area-inset-top));
     }
 
     .avatar {
@@ -746,6 +761,7 @@ button {
 
     .user-info {
         gap: 8px;
+        min-width: 0;
     }
 
     .user-details h2 {
@@ -763,8 +779,8 @@ button {
     }
 
     .header-actions button {
-        width: 36px;
-        height: 36px;
+        width: 38px;
+        height: 38px;
 
         font-size: 16px;
     }
@@ -774,13 +790,22 @@ button {
     }
 
 
-    /* MESSAGES */
+    /* =====================================================
+       MESSAGES
+    ===================================================== */
 
     .messages {
         padding:
             12px 7px;
 
         gap: 3px;
+
+        overscroll-behavior-y: contain;
+    }
+
+    .message {
+        margin:
+            1px 0;
     }
 
     .message.message-out .message-bubble,
@@ -803,6 +828,7 @@ button {
 
     .message-text {
         font-size: 14px;
+        line-height: 1.5;
     }
 
     .message-meta {
@@ -815,15 +841,38 @@ button {
         font-size: 12px;
     }
 
+    .welcome-message {
+        max-width: 300px;
+        padding: 20px;
+    }
 
-    /* INPUT */
+    .welcome-icon {
+        font-size: 38px;
+    }
+
+    .welcome-message h3 {
+        font-size: 17px;
+    }
+
+    .welcome-message p {
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       INPUT
+    ===================================================== */
 
     .message-area {
         min-height: 60px;
 
         gap: 5px;
 
-        padding: 7px;
+        padding:
+            7px;
+
+        padding-bottom:
+            max(7px, env(safe-area-inset-bottom));
     }
 
     .message-area input {
@@ -832,13 +881,21 @@ button {
         padding:
             0 15px;
 
-        font-size: 15px;
+        font-size: 16px;
+
+        border-radius: 23px;
     }
 
     .attach-button,
     .send-button {
         width: 44px;
         height: 44px;
+
+        font-size: 19px;
+    }
+
+    .send-button {
+        font-size: 17px;
     }
 }
 
@@ -854,11 +911,26 @@ button {
             5px 6px;
     }
 
+    .avatar {
+        width: 40px;
+        height: 40px;
+
+        font-size: 21px;
+    }
+
+    .user-info {
+        gap: 6px;
+    }
+
     .header-actions button {
-        width: 33px;
-        height: 33px;
+        width: 34px;
+        height: 34px;
 
         font-size: 15px;
+    }
+
+    #logoutButton {
+        font-size: 17px;
     }
 
     .user-details h2 {
@@ -870,6 +942,10 @@ button {
         max-width: 88%;
     }
 
+    .message-text {
+        font-size: 14px;
+    }
+
     .attach-button,
     .send-button {
         width: 41px;
@@ -878,6 +954,50 @@ button {
 
     .message-area {
         gap: 4px;
+    }
+
+    .message-area input {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+
+/* =========================================================
+   EXTRA SMALL PHONES
+========================================================= */
+
+@media (max-width: 340px) {
+
+    .header-actions button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .user-details h2 {
+        max-width: 85px;
+    }
+
+    .avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .message.message-out .message-bubble,
+    .message.message-in .message-bubble {
+        max-width: 91%;
+    }
+
+    .message-area {
+        gap: 3px;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .attach-button,
+    .send-button {
+        width: 40px;
+        height: 40px;
     }
 }
 
@@ -903,22 +1023,104 @@ button {
 
 
 /* =========================================================
-   SAFE AREA - MOBILE
+   LANDSCAPE MOBILE
 ========================================================= */
 
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
+@media (max-width: 900px) and (orientation: landscape) {
+
+    .chat-header {
+        min-height: 54px;
+    }
+
+    .avatar {
+        width: 38px;
+        height: 38px;
+
+        font-size: 20px;
+    }
+
+    .header-actions button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .messages {
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
 
     .message-area {
+        min-height: 54px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    .message-area input {
+        height: 42px;
+    }
+
+    .attach-button,
+    .send-button {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+
+/* =========================================================
+   SAFE AREA
+========================================================= */
+
+@supports (padding: max(0px)) {
+
+    .chat-header {
+        padding-top:
+            max(8px, env(safe-area-inset-top));
+    }
+
+    .message-area {
+        padding-left:
+            max(10px, env(safe-area-inset-left));
+
+        padding-right:
+            max(10px, env(safe-area-inset-right));
+
         padding-bottom:
-            calc(8px + env(safe-area-inset-bottom));
+            max(8px, env(safe-area-inset-bottom));
     }
 
     @media (max-width: 600px) {
 
+        .chat-header {
+            padding-top:
+                max(6px, env(safe-area-inset-top));
+        }
+
         .message-area {
+            padding-left:
+                max(7px, env(safe-area-inset-left));
+
+            padding-right:
+                max(7px, env(safe-area-inset-right));
+
             padding-bottom:
-                calc(7px + env(safe-area-inset-bottom));
+                max(7px, env(safe-area-inset-bottom));
         }
     }
 }
 
+
+/* =========================================================
+   REDUCE MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
