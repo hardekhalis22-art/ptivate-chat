@@ -1,4 +1,3 @@
-
 const socket = io({
     autoConnect: false
 });
@@ -46,6 +45,438 @@ let isTyping = false;
 let otherUserOnline = false;
 
 // ==========================================
+// NOTIFICATIONS
+// ==========================================
+
+let notificationsEnabled = false;
+
+const NOTIFICATION_SOUND =
+    "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+
+function canUseNotifications() {
+
+    return (
+        "Notification" in window
+    );
+}
+
+async function requestNotificationPermission() {
+
+    if (!canUseNotifications()) {
+        return false;
+    }
+
+    try {
+
+        if (
+            Notification.permission ===
+            "granted"
+        ) {
+
+            notificationsEnabled = true;
+
+            return true;
+        }
+
+        if (
+            Notification.permission ===
+            "denied"
+        ) {
+
+            notificationsEnabled = false;
+
+            return false;
+        }
+
+        const permission =
+            await Notification.requestPermission();
+
+        notificationsEnabled =
+            permission === "granted";
+
+        return notificationsEnabled;
+
+    } catch (error) {
+
+        console.error(
+            "Notification permission error:",
+            error
+        );
+
+        return false;
+    }
+}
+
+function playNotificationSound() {
+
+    try {
+
+        const audio =
+            new Audio(
+                NOTIFICATION_SOUND
+            );
+
+        audio.volume = 0.3;
+
+        audio.play().catch(() => {});
+
+    } catch {}
+}
+
+function showBrowserNotification(
+    title,
+    body,
+    options = {}
+) {
+
+    if (!canUseNotifications()) {
+        return null;
+    }
+
+    if (
+        Notification.permission !==
+        "granted"
+    ) {
+        return null;
+    }
+
+    try {
+
+        const notification =
+            new Notification(
+                title,
+                {
+                    body,
+                    icon:
+                        options.icon ||
+                        "/icon-192.png",
+                    badge:
+                        options.badge ||
+                        "/icon-192.png",
+                    tag:
+                        options.tag ||
+                        "private-chat",
+                    renotify:
+                        true,
+                    requireInteraction:
+                        options.requireInteraction ||
+                        false
+                }
+            );
+
+        notification.onclick = () => {
+
+            try {
+                window.focus();
+            } catch {}
+
+            notification.close();
+
+            if (
+                options.onClick &&
+                typeof options.onClick ===
+                    "function"
+            ) {
+                options.onClick();
+            }
+        };
+
+        return notification;
+
+    } catch (error) {
+
+        console.error(
+            "Notification error:",
+            error
+        );
+
+        return null;
+    }
+}
+
+function isChatVisible() {
+
+    return (
+        document.visibilityState ===
+            "visible" &&
+        !document.hidden
+    );
+}
+
+function notifyNewMessage(message) {
+
+    if (!currentUser || !otherUser) {
+        return;
+    }
+
+    const sender =
+        Number(message.sender_id);
+
+    if (
+        sender ===
+        Number(currentUser.id)
+    ) {
+        return;
+    }
+
+    /*
+     * If the user is currently looking at the chat,
+     * don't show a browser notification.
+     */
+
+    if (isChatVisible()) {
+        return;
+    }
+
+    let body =
+        "نامەیەکی نوێت هەیە.";
+
+    if (
+        message.media_type ===
+        "image"
+    ) {
+
+        body = "🖼️ وێنەیەکی نوێت هەیە.";
+
+    } else if (
+        message.media_type ===
+        "video"
+    ) {
+
+        body = "🎥 ڤیدیۆیەکی نوێت هەیە.";
+
+    } else if (
+        message.media_type ===
+        "voice"
+    ) {
+
+        body = "🎤 دەنگێکی نوێت هەیە.";
+
+    } else if (
+        message.message &&
+        message.message.trim()
+    ) {
+
+        body =
+            message.message.trim();
+
+        if (body.length > 120) {
+
+            body =
+                body.substring(0, 117) +
+                "...";
+        }
+    }
+
+    playNotificationSound();
+
+    showBrowserNotification(
+        otherUser.username,
+        body,
+        {
+            tag:
+                `message-${message.id || Date.now()}`
+        }
+    );
+}
+
+function notifyIncomingCall(
+    callType
+) {
+
+    if (!currentUser || !otherUser) {
+        return;
+    }
+
+    /*
+     * Calls should notify even if the page is visible,
+     * because the incoming-call UI may not be visible
+     * on another browser tab/window.
+     */
+
+    const title =
+        callType === "video"
+            ? "📹 Video Call"
+            : "📞 Voice Call";
+
+    const body =
+        callType === "video"
+            ? `${otherUser.username} پەیوەندییەکی ڤیدیۆیی بۆ ناردوویت.`
+            : `${otherUser.username} پەیوەندییەکی دەنگی بۆ ناردوویت.`;
+
+    playNotificationSound();
+
+    showBrowserNotification(
+        title,
+        body,
+        {
+            tag: "incoming-call",
+            requireInteraction: true
+        }
+    );
+}
+
+// ==========================================
+// SERVICE WORKER / PUSH
+// ==========================================
+
+async function registerPushNotifications() {
+
+    if (
+        !("serviceWorker" in navigator) ||
+        !("PushManager" in window)
+    ) {
+        console.log(
+            "Push notifications are not supported."
+        );
+
+        return;
+    }
+
+    if (!currentUser) {
+        return;
+    }
+
+    try {
+
+        const registration =
+            await navigator.serviceWorker.register(
+                "/sw.js"
+            );
+
+        console.log(
+            "Service Worker registered:",
+            registration.scope
+        );
+
+        await requestNotificationPermission();
+
+        if (
+            !notificationsEnabled
+        ) {
+            return;
+        }
+
+        const response =
+            await fetch(
+                "/api/push/public-key"
+            );
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data =
+            await response.json();
+
+        if (
+            !data ||
+            !data.publicKey
+        ) {
+
+            console.log(
+                "Push public key not available."
+            );
+
+            return;
+        }
+
+        let subscription =
+            await registration.pushManager.getSubscription();
+
+        if (!subscription) {
+
+            subscription =
+                await registration.pushManager.subscribe(
+                    {
+                        userVisibleOnly: true,
+                        applicationServerKey:
+                            urlBase64ToUint8Array(
+                                data.publicKey
+                            )
+                    }
+                );
+        }
+
+        await fetch(
+            "/api/push/subscribe",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+                    userId:
+                        currentUser.id,
+
+                    subscription
+                })
+            }
+        );
+
+        console.log(
+            "Push notification subscribed."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Push registration error:",
+            error
+        );
+    }
+}
+
+function urlBase64ToUint8Array(
+    base64String
+) {
+
+    const padding =
+        "=".repeat(
+            (4 -
+                (base64String.length % 4)) %
+                4
+        );
+
+    const base64 =
+        (
+            base64String +
+            padding
+        )
+            .replace(
+                /-/g,
+                "+"
+            )
+            .replace(
+                /_/g,
+                "/"
+            );
+
+    const rawData =
+        window.atob(base64);
+
+    const outputArray =
+        new Uint8Array(
+            rawData.length
+        );
+
+    for (
+        let i = 0;
+        i < rawData.length;
+        ++i
+    ) {
+
+        outputArray[i] =
+            rawData.charCodeAt(i);
+    }
+
+    return outputArray;
+}
+
+// ==========================================
 // VOICE RECORDING
 // ==========================================
 
@@ -69,7 +500,9 @@ let localStream = null;
 let remoteStream = null;
 
 let currentCallType = null;
+
 let currentCallRole = null;
+
 let currentCallPartnerId = null;
 
 let incomingCallData = null;
@@ -100,6 +533,7 @@ const rtcConfiguration = {
 function getOtherUser(userId) {
 
     if (Number(userId) === 1) {
+
         return {
             id: 2,
             username: "gure"
@@ -118,14 +552,24 @@ function getOtherUser(userId) {
 
 function showLogin() {
 
-    loginPage.classList.remove("hidden");
-    chatPage.classList.add("hidden");
+    loginPage.classList.remove(
+        "hidden"
+    );
+
+    chatPage.classList.add(
+        "hidden"
+    );
 }
 
 function showChat() {
 
-    loginPage.classList.add("hidden");
-    chatPage.classList.remove("hidden");
+    loginPage.classList.add(
+        "hidden"
+    );
+
+    chatPage.classList.remove(
+        "hidden"
+    );
 }
 
 // ==========================================
@@ -151,7 +595,8 @@ loginForm.addEventListener(
         }
 
         loginButton.disabled = true;
-        loginButton.textContent = "چاوەڕوان بە...";
+        loginButton.textContent =
+            "چاوەڕوان بە...";
 
         try {
 
@@ -188,15 +633,20 @@ loginForm.addEventListener(
                 return;
             }
 
-            currentUser = data.user;
+            currentUser =
+                data.user;
 
             localStorage.setItem(
                 "privateChatUser",
-                JSON.stringify(currentUser)
+                JSON.stringify(
+                    currentUser
+                )
             );
 
             otherUser =
-                getOtherUser(currentUser.id);
+                getOtherUser(
+                    currentUser.id
+                );
 
             otherUsername.textContent =
                 otherUser.username;
@@ -206,6 +656,19 @@ loginForm.addEventListener(
             createVoiceControls();
 
             createCallUI();
+
+            /*
+             * Ask for notification permission
+             * after successful login.
+             */
+
+            await requestNotificationPermission();
+
+            /*
+             * Register push notification.
+             */
+
+            registerPushNotifications();
 
             if (!socket.connected) {
                 socket.connect();
@@ -224,7 +687,9 @@ loginForm.addEventListener(
         } finally {
 
             loginButton.disabled = false;
-            loginButton.textContent = "چوونەژوورەوە";
+
+            loginButton.textContent =
+                "چوونەژوورەوە";
         }
     }
 );
@@ -250,20 +715,25 @@ async function restoreLogin() {
     try {
 
         currentUser =
-            JSON.parse(savedUser);
+            JSON.parse(
+                savedUser
+            );
 
         if (
             !currentUser ||
             !currentUser.id ||
             !currentUser.username
         ) {
+
             throw new Error(
                 "Invalid saved user"
             );
         }
 
         otherUser =
-            getOtherUser(currentUser.id);
+            getOtherUser(
+                currentUser.id
+            );
 
         otherUsername.textContent =
             otherUser.username;
@@ -273,6 +743,10 @@ async function restoreLogin() {
         createVoiceControls();
 
         createCallUI();
+
+        await requestNotificationPermission();
+
+        registerPushNotifications();
 
         if (!socket.connected) {
             socket.connect();
@@ -323,7 +797,8 @@ async function loadMessages() {
             return;
         }
 
-        messagesContainer.innerHTML = "";
+        messagesContainer.innerHTML =
+            "";
 
         if (
             !data.messages ||
@@ -337,7 +812,10 @@ async function loadMessages() {
 
         data.messages.forEach(
             message => {
-                addMessage(message);
+
+                addMessage(
+                    message
+                );
             }
         );
 
@@ -346,8 +824,11 @@ async function loadMessages() {
         socket.emit(
             "messages-seen",
             {
-                userId: currentUser.id,
-                otherUserId: otherUser.id
+                userId:
+                    currentUser.id,
+
+                otherUserId:
+                    otherUser.id
             }
         );
 
@@ -419,7 +900,8 @@ function addMessage(message) {
     // IMAGE
 
     if (
-        message.media_type === "image" &&
+        message.media_type ===
+            "image" &&
         message.media_url
     ) {
 
@@ -438,14 +920,22 @@ function addMessage(message) {
         image.loading =
             "lazy";
 
-        image.style.maxWidth = "100%";
-        image.style.borderRadius = "8px";
-        image.style.display = "block";
-        image.style.cursor = "pointer";
+        image.style.maxWidth =
+            "100%";
+
+        image.style.borderRadius =
+            "8px";
+
+        image.style.display =
+            "block";
+
+        image.style.cursor =
+            "pointer";
 
         image.addEventListener(
             "click",
             () => {
+
                 window.open(
                     message.media_url,
                     "_blank"
@@ -453,13 +943,16 @@ function addMessage(message) {
             }
         );
 
-        bubble.appendChild(image);
+        bubble.appendChild(
+            image
+        );
     }
 
     // VIDEO
 
     if (
-        message.media_type === "video" &&
+        message.media_type ===
+            "video" &&
         message.media_url
     ) {
 
@@ -472,37 +965,60 @@ function addMessage(message) {
         video.src =
             message.media_url;
 
-        video.controls = true;
-        video.playsInline = true;
-        video.preload = "metadata";
+        video.controls =
+            true;
 
-        video.style.maxWidth = "100%";
-        video.style.width = "100%";
-        video.style.borderRadius = "8px";
+        video.playsInline =
+            true;
 
-        bubble.appendChild(video);
+        video.preload =
+            "metadata";
+
+        video.style.maxWidth =
+            "100%";
+
+        video.style.width =
+            "100%";
+
+        video.style.borderRadius =
+            "8px";
+
+        bubble.appendChild(
+            video
+        );
     }
 
     // VOICE MESSAGE
 
     if (
-        message.media_type === "voice" &&
+        message.media_type ===
+            "voice" &&
         message.media_url
     ) {
 
         const voiceBox =
             document.createElement("div");
 
-        voiceBox.style.display = "flex";
-        voiceBox.style.alignItems = "center";
-        voiceBox.style.gap = "8px";
-        voiceBox.style.minWidth = "220px";
+        voiceBox.style.display =
+            "flex";
+
+        voiceBox.style.alignItems =
+            "center";
+
+        voiceBox.style.gap =
+            "8px";
+
+        voiceBox.style.minWidth =
+            "220px";
 
         const icon =
             document.createElement("span");
 
-        icon.textContent = "🎤";
-        icon.style.fontSize = "22px";
+        icon.textContent =
+            "🎤";
+
+        icon.style.fontSize =
+            "22px";
 
         const audio =
             document.createElement("audio");
@@ -510,16 +1026,29 @@ function addMessage(message) {
         audio.src =
             message.media_url;
 
-        audio.controls = true;
-        audio.preload = "metadata";
+        audio.controls =
+            true;
 
-        audio.style.width = "220px";
-        audio.style.maxWidth = "100%";
+        audio.preload =
+            "metadata";
 
-        voiceBox.appendChild(icon);
-        voiceBox.appendChild(audio);
+        audio.style.width =
+            "220px";
 
-        bubble.appendChild(voiceBox);
+        audio.style.maxWidth =
+            "100%";
+
+        voiceBox.appendChild(
+            icon
+        );
+
+        voiceBox.appendChild(
+            audio
+        );
+
+        bubble.appendChild(
+            voiceBox
+        );
     }
 
     // TEXT
@@ -538,7 +1067,9 @@ function addMessage(message) {
         text.textContent =
             message.message;
 
-        bubble.appendChild(text);
+        bubble.appendChild(
+            text
+        );
     }
 
     // META
@@ -550,7 +1081,9 @@ function addMessage(message) {
         "message-meta";
 
     const date =
-        new Date(message.created_at);
+        new Date(
+            message.created_at
+        );
 
     const time =
         date.toLocaleTimeString(
@@ -567,7 +1100,9 @@ function addMessage(message) {
     timeSpan.textContent =
         time;
 
-    meta.appendChild(timeSpan);
+    meta.appendChild(
+        timeSpan
+    );
 
     if (isMine) {
 
@@ -582,14 +1117,22 @@ function addMessage(message) {
                 ? "✓✓"
                 : "✓";
 
-        meta.appendChild(seen);
+        meta.appendChild(
+            seen
+        );
     }
 
-    bubble.appendChild(meta);
+    bubble.appendChild(
+        meta
+    );
 
-    div.appendChild(bubble);
+    div.appendChild(
+        bubble
+    );
 
-    messagesContainer.appendChild(div);
+    messagesContainer.appendChild(
+        div
+    );
 }
 
 // ==========================================
@@ -621,13 +1164,18 @@ function sendMessage() {
     socket.emit(
         "send-message",
         {
-            senderId: currentUser.id,
-            receiverId: otherUser.id,
+            senderId:
+                currentUser.id,
+
+            receiverId:
+                otherUser.id,
+
             message
         }
     );
 
-    messageInput.value = "";
+    messageInput.value =
+        "";
 
     messageInput.focus();
 }
@@ -673,7 +1221,9 @@ messageInput.addEventListener(
             return;
         }
 
-        if (!messageInput.value.trim()) {
+        if (
+            !messageInput.value.trim()
+        ) {
 
             stopTyping();
 
@@ -682,7 +1232,8 @@ messageInput.addEventListener(
 
         if (!isTyping) {
 
-            isTyping = true;
+            isTyping =
+                true;
 
             socket.emit(
                 "typing",
@@ -696,7 +1247,9 @@ messageInput.addEventListener(
             );
         }
 
-        clearTimeout(typingTimer);
+        clearTimeout(
+            typingTimer
+        );
 
         typingTimer =
             setTimeout(
@@ -712,13 +1265,16 @@ messageInput.addEventListener(
 
 function stopTyping() {
 
-    clearTimeout(typingTimer);
+    clearTimeout(
+        typingTimer
+    );
 
     if (!isTyping) {
         return;
     }
 
-    isTyping = false;
+    isTyping =
+        false;
 
     if (
         !currentUser ||
@@ -752,6 +1308,7 @@ if (
     mediaButton.addEventListener(
         "click",
         () => {
+
             mediaInput.click();
         }
     );
@@ -767,9 +1324,12 @@ if (
                 return;
             }
 
-            await uploadMedia(file);
+            await uploadMedia(
+                file
+            );
 
-            mediaInput.value = "";
+            mediaInput.value =
+                "";
         }
     );
 }
@@ -813,9 +1373,15 @@ async function uploadMedia(file) {
     ];
 
     if (
-        !allowedImages.includes(file.type) &&
-        !allowedVideos.includes(file.type) &&
-        !allowedAudio.includes(file.type)
+        !allowedImages.includes(
+            file.type
+        ) &&
+        !allowedVideos.includes(
+            file.type
+        ) &&
+        !allowedAudio.includes(
+            file.type
+        )
     ) {
 
         alert(
@@ -828,7 +1394,10 @@ async function uploadMedia(file) {
     const maxSize =
         1000 * 1024 * 1024;
 
-    if (file.size > maxSize) {
+    if (
+        file.size >
+        maxSize
+    ) {
 
         alert(
             "قەبارەی فایل زۆر گەورەیە."
@@ -858,7 +1427,8 @@ async function uploadMedia(file) {
     try {
 
         if (mediaButton) {
-            mediaButton.disabled = true;
+            mediaButton.disabled =
+                true;
         }
 
         const response =
@@ -898,7 +1468,8 @@ async function uploadMedia(file) {
     } finally {
 
         if (mediaButton) {
-            mediaButton.disabled = false;
+            mediaButton.disabled =
+                false;
         }
     }
 }
@@ -914,29 +1485,57 @@ function createVoiceControls() {
     }
 
     const messageArea =
-        document.querySelector(".message-area");
+        document.querySelector(
+            ".message-area"
+        );
 
     if (!messageArea) {
         return;
     }
 
     voiceButton =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
-    voiceButton.type = "button";
-    voiceButton.id = "voiceButton";
-    voiceButton.title = "ناردنی دەنگ";
-    voiceButton.textContent = "🎤";
+    voiceButton.type =
+        "button";
 
-    voiceButton.style.width = "46px";
-    voiceButton.style.height = "46px";
-    voiceButton.style.border = "none";
-    voiceButton.style.borderRadius = "50%";
-    voiceButton.style.background = "#25d366";
-    voiceButton.style.color = "#ffffff";
-    voiceButton.style.fontSize = "20px";
-    voiceButton.style.cursor = "pointer";
-    voiceButton.style.flexShrink = "0";
+    voiceButton.id =
+        "voiceButton";
+
+    voiceButton.title =
+        "ناردنی دەنگ";
+
+    voiceButton.textContent =
+        "🎤";
+
+    voiceButton.style.width =
+        "46px";
+
+    voiceButton.style.height =
+        "46px";
+
+    voiceButton.style.border =
+        "none";
+
+    voiceButton.style.borderRadius =
+        "50%";
+
+    voiceButton.style.background =
+        "#25d366";
+
+    voiceButton.style.color =
+        "#ffffff";
+
+    voiceButton.style.fontSize =
+        "20px";
+
+    voiceButton.style.cursor =
+        "pointer";
+
+    voiceButton.style.flexShrink =
+        "0";
 
     voiceButton.addEventListener(
         "click",
@@ -944,28 +1543,62 @@ function createVoiceControls() {
     );
 
     voiceStatus =
-        document.createElement("span");
+        document.createElement(
+            "span"
+        );
 
-    voiceStatus.id = "voiceStatus";
-    voiceStatus.textContent = "";
-    voiceStatus.style.display = "none";
-    voiceStatus.style.fontSize = "12px";
-    voiceStatus.style.color = "#d93025";
-    voiceStatus.style.whiteSpace = "nowrap";
+    voiceStatus.id =
+        "voiceStatus";
+
+    voiceStatus.textContent =
+        "";
+
+    voiceStatus.style.display =
+        "none";
+
+    voiceStatus.style.fontSize =
+        "12px";
+
+    voiceStatus.style.color =
+        "#d93025";
+
+    voiceStatus.style.whiteSpace =
+        "nowrap";
 
     voiceCancelButton =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
-    voiceCancelButton.type = "button";
-    voiceCancelButton.textContent = "✕";
-    voiceCancelButton.style.display = "none";
-    voiceCancelButton.style.width = "40px";
-    voiceCancelButton.style.height = "40px";
-    voiceCancelButton.style.border = "none";
-    voiceCancelButton.style.borderRadius = "50%";
-    voiceCancelButton.style.background = "#e53935";
-    voiceCancelButton.style.color = "#ffffff";
-    voiceCancelButton.style.cursor = "pointer";
+    voiceCancelButton.type =
+        "button";
+
+    voiceCancelButton.textContent =
+        "✕";
+
+    voiceCancelButton.style.display =
+        "none";
+
+    voiceCancelButton.style.width =
+        "40px";
+
+    voiceCancelButton.style.height =
+        "40px";
+
+    voiceCancelButton.style.border =
+        "none";
+
+    voiceCancelButton.style.borderRadius =
+        "50%";
+
+    voiceCancelButton.style.background =
+        "#e53935";
+
+    voiceCancelButton.style.color =
+        "#ffffff";
+
+    voiceCancelButton.style.cursor =
+        "pointer";
 
     voiceCancelButton.addEventListener(
         "click",
@@ -1002,12 +1635,17 @@ function getRecorderMimeType() {
         "audio/mp4"
     ];
 
-    for (const type of types) {
+    for (
+        const type of types
+    ) {
 
         if (
             window.MediaRecorder &&
-            MediaRecorder.isTypeSupported(type)
+            MediaRecorder.isTypeSupported(
+                type
+            )
         ) {
+
             return type;
         }
     }
@@ -1021,7 +1659,9 @@ function getRecorderMimeType() {
 
 async function toggleVoiceRecording() {
 
-    if (isRecordingVoice) {
+    if (
+        isRecordingVoice
+    ) {
 
         stopVoiceRecording();
 
@@ -1045,7 +1685,9 @@ async function startVoiceRecording() {
         return;
     }
 
-    if (!window.MediaRecorder) {
+    if (
+        !window.MediaRecorder
+    ) {
 
         alert(
             "ئەم براوزەرە پشتگیری Voice Recording ناکات."
@@ -1057,9 +1699,11 @@ async function startVoiceRecording() {
     try {
 
         const stream =
-            await navigator.mediaDevices.getUserMedia({
-                audio: true
-            });
+            await navigator.mediaDevices.getUserMedia(
+                {
+                    audio: true
+                }
+            );
 
         const mimeType =
             getRecorderMimeType();
@@ -1068,11 +1712,16 @@ async function startVoiceRecording() {
             mimeType
                 ? new MediaRecorder(
                     stream,
-                    { mimeType }
+                    {
+                        mimeType
+                    }
                 )
-                : new MediaRecorder(stream);
+                : new MediaRecorder(
+                    stream
+                );
 
-        audioChunks = [];
+        audioChunks =
+            [];
 
         mediaRecorder.ondataavailable =
             event => {
@@ -1099,7 +1748,9 @@ async function startVoiceRecording() {
                         }
                     );
 
-                if (!audioChunks.length) {
+                if (
+                    !audioChunks.length
+                ) {
                     return;
                 }
 
@@ -1109,9 +1760,13 @@ async function startVoiceRecording() {
                     "audio/webm";
 
                 const extension =
-                    actualType.includes("ogg")
+                    actualType.includes(
+                        "ogg"
+                    )
                         ? "ogg"
-                        : actualType.includes("mp4")
+                        : actualType.includes(
+                            "mp4"
+                        )
                             ? "mp4"
                             : "webm";
 
@@ -1119,7 +1774,8 @@ async function startVoiceRecording() {
                     new Blob(
                         audioChunks,
                         {
-                            type: actualType
+                            type:
+                                actualType
                         }
                     );
 
@@ -1128,30 +1784,47 @@ async function startVoiceRecording() {
                         [blob],
                         `voice-${Date.now()}.${extension}`,
                         {
-                            type: actualType
+                            type:
+                                actualType
                         }
                     );
 
-                audioChunks = [];
+                audioChunks =
+                    [];
 
-                await uploadVoice(file);
+                await uploadVoice(
+                    file
+                );
 
-                mediaRecorder = null;
+                mediaRecorder =
+                    null;
             };
 
         mediaRecorder.start();
 
-        isRecordingVoice = true;
-        recordingSeconds = 0;
+        isRecordingVoice =
+            true;
 
-        voiceButton.textContent = "⏹️";
-        voiceButton.style.background = "#d93025";
+        recordingSeconds =
+            0;
 
-        voiceCancelButton.style.display = "flex";
-        voiceCancelButton.style.alignItems = "center";
-        voiceCancelButton.style.justifyContent = "center";
+        voiceButton.textContent =
+            "⏹️";
 
-        voiceStatus.style.display = "inline";
+        voiceButton.style.background =
+            "#d93025";
+
+        voiceCancelButton.style.display =
+            "flex";
+
+        voiceCancelButton.style.alignItems =
+            "center";
+
+        voiceCancelButton.style.justifyContent =
+            "center";
+
+        voiceStatus.style.display =
+            "inline";
 
         updateRecordingStatus();
 
@@ -1188,14 +1861,21 @@ function updateRecordingStatus() {
 
     const minutes =
         Math.floor(
-            recordingSeconds / 60
+            recordingSeconds /
+            60
         );
 
     const seconds =
-        recordingSeconds % 60;
+        recordingSeconds %
+        60;
 
     voiceStatus.textContent =
-        `🔴 ${minutes}:${String(seconds).padStart(2, "0")}`;
+        `🔴 ${minutes}:${String(
+            seconds
+        ).padStart(
+            2,
+            "0"
+        )}`;
 }
 
 function stopVoiceRecording() {
@@ -1207,20 +1887,33 @@ function stopVoiceRecording() {
         return;
     }
 
-    clearInterval(recordingTimer);
+    clearInterval(
+        recordingTimer
+    );
 
-    recordingTimer = null;
-    isRecordingVoice = false;
+    recordingTimer =
+        null;
 
-    voiceButton.textContent = "🎤";
-    voiceButton.style.background = "#25d366";
+    isRecordingVoice =
+        false;
 
-    voiceCancelButton.style.display = "none";
-    voiceStatus.style.display = "none";
+    voiceButton.textContent =
+        "🎤";
+
+    voiceButton.style.background =
+        "#25d366";
+
+    voiceCancelButton.style.display =
+        "none";
+
+    voiceStatus.style.display =
+        "none";
 
     if (
-        mediaRecorder.state !== "inactive"
+        mediaRecorder.state !==
+        "inactive"
     ) {
+
         mediaRecorder.stop();
     }
 }
@@ -1234,37 +1927,56 @@ function cancelVoiceRecording() {
         return;
     }
 
-    clearInterval(recordingTimer);
+    clearInterval(
+        recordingTimer
+    );
 
-    recordingTimer = null;
-    isRecordingVoice = false;
+    recordingTimer =
+        null;
 
-    audioChunks = [];
+    isRecordingVoice =
+        false;
 
-    if (mediaRecorder.stream) {
+    audioChunks =
+        [];
+
+    if (
+        mediaRecorder.stream
+    ) {
 
         mediaRecorder.stream
             .getTracks()
             .forEach(
-                track => track.stop()
+                track =>
+                    track.stop()
             );
     }
 
-    mediaRecorder.onstop = null;
+    mediaRecorder.onstop =
+        null;
 
     if (
-        mediaRecorder.state !== "inactive"
+        mediaRecorder.state !==
+        "inactive"
     ) {
+
         mediaRecorder.stop();
     }
 
-    mediaRecorder = null;
+    mediaRecorder =
+        null;
 
-    voiceButton.textContent = "🎤";
-    voiceButton.style.background = "#25d366";
+    voiceButton.textContent =
+        "🎤";
 
-    voiceCancelButton.style.display = "none";
-    voiceStatus.style.display = "none";
+    voiceButton.style.background =
+        "#25d366";
+
+    voiceCancelButton.style.display =
+        "none";
+
+    voiceStatus.style.display =
+        "none";
 }
 
 async function uploadVoice(file) {
@@ -1360,9 +2072,12 @@ function createCallUI() {
     // ======================================
 
     callOverlay =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
-    callOverlay.id = "callOverlay";
+    callOverlay.id =
+        "callOverlay";
 
     Object.assign(
         callOverlay.style,
@@ -1381,26 +2096,37 @@ function createCallUI() {
     );
 
     callTitle =
-        document.createElement("h2");
+        document.createElement(
+            "h2"
+        );
 
-    callTitle.style.color = "#fff";
-    callTitle.style.marginBottom = "8px";
+    callTitle.style.color =
+        "#fff";
+
+    callTitle.style.marginBottom =
+        "8px";
 
     callStatus =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
-    callStatus.style.color = "#bbb";
-    callStatus.style.marginBottom = "20px";
+    callStatus.style.color =
+        "#bbb";
 
-    // ======================================
-    // REMOTE VIDEO
-    // ======================================
+    callStatus.style.marginBottom =
+        "20px";
 
     remoteVideo =
-        document.createElement("video");
+        document.createElement(
+            "video"
+        );
 
-    remoteVideo.autoplay = true;
-    remoteVideo.playsInline = true;
+    remoteVideo.autoplay =
+        true;
+
+    remoteVideo.playsInline =
+        true;
 
     Object.assign(
         remoteVideo.style,
@@ -1410,24 +2136,23 @@ function createCallUI() {
             maxHeight: "70vh",
             objectFit: "contain",
             background: "#000",
-            borderRadius: "15px",
-
-            // IMPORTANT:
-            // Remote user must NOT be mirrored.
-            transform: "none"
+            borderRadius: "15px"
         }
     );
 
-    // ======================================
-    // LOCAL VIDEO
-    // ======================================
-
     localVideo =
-        document.createElement("video");
+        document.createElement(
+            "video"
+        );
 
-    localVideo.autoplay = true;
-    localVideo.muted = true;
-    localVideo.playsInline = true;
+    localVideo.autoplay =
+        true;
+
+    localVideo.muted =
+        true;
+
+    localVideo.playsInline =
+        true;
 
     Object.assign(
         localVideo.style,
@@ -1440,19 +2165,14 @@ function createCallUI() {
             borderRadius: "12px",
             background: "#222",
             display: "none",
-            border: "2px solid #fff",
-
-            // ==================================
-            // WHATSAPP-STYLE SELF MIRROR
-            // ==================================
-            // Only YOUR local preview is mirrored.
-            // This does NOT modify the MediaStream.
-            transform: "scaleX(-1)"
+            border: "2px solid #fff"
         }
     );
 
     const controls =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
     Object.assign(
         controls.style,
@@ -1499,24 +2219,50 @@ function createCallUI() {
         endCurrentCall
     );
 
-    controls.appendChild(muteButton);
-    controls.appendChild(cameraButton);
-    controls.appendChild(endCallButton);
+    controls.appendChild(
+        muteButton
+    );
 
-    callOverlay.appendChild(callTitle);
-    callOverlay.appendChild(callStatus);
-    callOverlay.appendChild(remoteVideo);
-    callOverlay.appendChild(localVideo);
-    callOverlay.appendChild(controls);
+    controls.appendChild(
+        cameraButton
+    );
 
-    document.body.appendChild(callOverlay);
+    controls.appendChild(
+        endCallButton
+    );
+
+    callOverlay.appendChild(
+        callTitle
+    );
+
+    callOverlay.appendChild(
+        callStatus
+    );
+
+    callOverlay.appendChild(
+        remoteVideo
+    );
+
+    callOverlay.appendChild(
+        localVideo
+    );
+
+    callOverlay.appendChild(
+        controls
+    );
+
+    document.body.appendChild(
+        callOverlay
+    );
 
     // ======================================
     // INCOMING CALL
     // ======================================
 
     incomingOverlay =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
     incomingOverlay.id =
         "incomingCallOverlay";
@@ -1527,7 +2273,8 @@ function createCallUI() {
             position: "fixed",
             inset: "0",
             zIndex: "10000",
-            background: "rgba(0,0,0,.85)",
+            background:
+                "rgba(0,0,0,.85)",
             display: "none",
             alignItems: "center",
             justifyContent: "center",
@@ -1537,12 +2284,15 @@ function createCallUI() {
     );
 
     const incomingBox =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
     Object.assign(
         incomingBox.style,
         {
-            width: "min(400px, 100%)",
+            width:
+                "min(400px, 100%)",
             background: "#fff",
             borderRadius: "20px",
             padding: "30px",
@@ -1551,7 +2301,9 @@ function createCallUI() {
     );
 
     const incomingTitle =
-        document.createElement("h2");
+        document.createElement(
+            "h2"
+        );
 
     incomingTitle.id =
         "incomingCallTitle";
@@ -1560,7 +2312,9 @@ function createCallUI() {
         "Incoming Call";
 
     const incomingText =
-        document.createElement("p");
+        document.createElement(
+            "p"
+        );
 
     incomingText.id =
         "incomingCallText";
@@ -1569,20 +2323,25 @@ function createCallUI() {
         "پەیوەندییەکت هەیە.";
 
     const incomingButtons =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
     Object.assign(
         incomingButtons.style,
         {
             display: "flex",
-            justifyContent: "center",
+            justifyContent:
+                "center",
             gap: "15px",
             marginTop: "25px"
         }
     );
 
     const acceptButton =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
     acceptButton.textContent =
         "📞 وەرگرتن";
@@ -1590,18 +2349,25 @@ function createCallUI() {
     Object.assign(
         acceptButton.style,
         {
-            padding: "12px 22px",
+            padding:
+                "12px 22px",
             border: "none",
-            borderRadius: "12px",
-            background: "#25d366",
+            borderRadius:
+                "12px",
+            background:
+                "#25d366",
             color: "#fff",
-            cursor: "pointer",
-            fontSize: "16px"
+            cursor:
+                "pointer",
+            fontSize:
+                "16px"
         }
     );
 
     const rejectButton =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
     rejectButton.textContent =
         "❌ ڕەتکردنەوە";
@@ -1609,13 +2375,18 @@ function createCallUI() {
     Object.assign(
         rejectButton.style,
         {
-            padding: "12px 22px",
+            padding:
+                "12px 22px",
             border: "none",
-            borderRadius: "12px",
-            background: "#d93025",
+            borderRadius:
+                "12px",
+            background:
+                "#d93025",
             color: "#fff",
-            cursor: "pointer",
-            fontSize: "16px"
+            cursor:
+                "pointer",
+            fontSize:
+                "16px"
         }
     );
 
@@ -1664,11 +2435,18 @@ function createCallButton(
 ) {
 
     const button =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
-    button.type = "button";
-    button.textContent = text;
-    button.title = title;
+    button.type =
+        "button";
+
+    button.textContent =
+        text;
+
+    button.title =
+        title;
 
     Object.assign(
         button.style,
@@ -1696,7 +2474,10 @@ if (voiceCallButton) {
     voiceCallButton.addEventListener(
         "click",
         () => {
-            startCall("voice");
+
+            startCall(
+                "voice"
+            );
         }
     );
 }
@@ -1706,7 +2487,10 @@ if (videoCallButton) {
     videoCallButton.addEventListener(
         "click",
         () => {
-            startCall("video");
+
+            startCall(
+                "video"
+            );
         }
     );
 }
@@ -1715,7 +2499,9 @@ if (videoCallButton) {
 // START CALL
 // ==========================================
 
-async function startCall(callType) {
+async function startCall(
+    callType
+) {
 
     if (
         !currentUser ||
@@ -1751,7 +2537,9 @@ async function startCall(callType) {
             "caller";
 
         currentCallPartnerId =
-            Number(otherUser.id);
+            Number(
+                otherUser.id
+            );
 
         showCallScreen(
             callType,
@@ -1763,29 +2551,20 @@ async function startCall(callType) {
                 {
                     audio: true,
                     video:
-                        callType === "video"
+                        callType ===
+                        "video"
                 }
             );
 
-        localStream = stream;
+        localStream =
+            stream;
 
         localVideo.srcObject =
             localStream;
 
-        // ==================================
-        // LOCAL SELF PREVIEW
-        // ==================================
-        // Mirror ONLY the local preview.
-        // The actual stream sent through WebRTC
-        // remains completely unchanged.
-
-        localVideo.style.transform =
-            callType === "video"
-                ? "scaleX(-1)"
-                : "none";
-
         localVideo.style.display =
-            callType === "video"
+            callType ===
+            "video"
                 ? "block"
                 : "none";
 
@@ -1830,8 +2609,12 @@ socket.on(
         }
 
         if (
-            Number(data.receiverId) !==
-            Number(currentUser.id)
+            Number(
+                data.receiverId
+            ) !==
+            Number(
+                currentUser.id
+            )
         ) {
             return;
         }
@@ -1852,7 +2635,16 @@ socket.on(
             return;
         }
 
-        incomingCallData = data;
+        incomingCallData =
+            data;
+
+        /*
+         * Browser notification for incoming call.
+         */
+
+        notifyIncomingCall(
+            data.callType
+        );
 
         const incomingTitle =
             document.getElementById(
@@ -1867,7 +2659,8 @@ socket.on(
         if (incomingTitle) {
 
             incomingTitle.textContent =
-                data.callType === "video"
+                data.callType ===
+                "video"
                     ? "📹 Video Call"
                     : "📞 Voice Call";
         }
@@ -1876,7 +2669,8 @@ socket.on(
 
             incomingText.textContent =
                 `${otherUser?.username || "User"} پەیوەندییەکی ${
-                    data.callType === "video"
+                    data.callType ===
+                    "video"
                         ? "ڤیدیۆیی"
                         : "دەنگی"
                 }ی بۆ ناردوویت.`;
@@ -1903,7 +2697,8 @@ async function acceptIncomingCall() {
     const data =
         incomingCallData;
 
-    incomingCallData = null;
+    incomingCallData =
+        null;
 
     if (incomingOverlay) {
 
@@ -1920,7 +2715,9 @@ async function acceptIncomingCall() {
             "receiver";
 
         currentCallPartnerId =
-            Number(data.callerId);
+            Number(
+                data.callerId
+            );
 
         showCallScreen(
             data.callType,
@@ -1932,26 +2729,20 @@ async function acceptIncomingCall() {
                 {
                     audio: true,
                     video:
-                        data.callType === "video"
+                        data.callType ===
+                        "video"
                 }
             );
 
-        localStream = stream;
+        localStream =
+            stream;
 
         localVideo.srcObject =
             localStream;
 
-        // ==================================
-        // LOCAL SELF PREVIEW MIRROR
-        // ==================================
-
-        localVideo.style.transform =
-            data.callType === "video"
-                ? "scaleX(-1)"
-                : "none";
-
         localVideo.style.display =
-            data.callType === "video"
+            data.callType ===
+            "video"
                 ? "block"
                 : "none";
 
@@ -2013,7 +2804,8 @@ function rejectIncomingCall() {
         }
     );
 
-    incomingCallData = null;
+    incomingCallData =
+        null;
 
     if (incomingOverlay) {
 
@@ -2032,14 +2824,19 @@ socket.on(
 
         if (
             !currentUser ||
-            currentCallRole !== "caller"
+            currentCallRole !==
+                "caller"
         ) {
             return;
         }
 
         if (
-            Number(data.callerId) !==
-            Number(currentUser.id)
+            Number(
+                data.callerId
+            ) !==
+            Number(
+                currentUser.id
+            )
         ) {
             return;
         }
@@ -2100,8 +2897,12 @@ socket.on(
         }
 
         if (
-            Number(data.receiverId) !==
-            Number(currentUser.id)
+            Number(
+                data.receiverId
+            ) !==
+            Number(
+                currentUser.id
+            )
         ) {
             return;
         }
@@ -2135,14 +2936,17 @@ socket.on(
                         currentUser.id,
 
                     receiverId:
-                        Number(data.senderId),
+                        Number(
+                            data.senderId
+                        ),
 
                     answer:
                         peerConnection.localDescription
                 }
             );
 
-            isCallActive = true;
+            isCallActive =
+                true;
 
             callStatus.textContent =
                 "connected";
@@ -2175,8 +2979,12 @@ socket.on(
         }
 
         if (
-            Number(data.receiverId) !==
-            Number(currentUser.id)
+            Number(
+                data.receiverId
+            ) !==
+            Number(
+                currentUser.id
+            )
         ) {
             return;
         }
@@ -2191,7 +2999,8 @@ socket.on(
 
             await addPendingIceCandidates();
 
-            isCallActive = true;
+            isCallActive =
+                true;
 
             callStatus.textContent =
                 "connected";
@@ -2214,15 +3023,17 @@ socket.on(
     "webrtc-ice-candidate",
     async data => {
 
-        if (
-            !currentUser
-        ) {
+        if (!currentUser) {
             return;
         }
 
         if (
-            Number(data.receiverId) !==
-            Number(currentUser.id)
+            Number(
+                data.receiverId
+            ) !==
+            Number(
+                currentUser.id
+            )
         ) {
             return;
         }
@@ -2300,15 +3111,6 @@ function createPeerConnection() {
     remoteVideo.srcObject =
         remoteStream;
 
-    // ======================================
-    // IMPORTANT:
-    // Remote video is ALWAYS normal.
-    // Never mirror the remote user's camera.
-    // ======================================
-
-    remoteVideo.style.transform =
-        "none";
-
     peerConnection.ontrack =
         event => {
 
@@ -2326,13 +3128,13 @@ function createPeerConnection() {
             remoteVideo.srcObject =
                 remoteStream;
 
-            remoteVideo.style.transform =
-                "none";
-
             remoteVideo.play()
-                .catch(() => {});
+                .catch(
+                    () => {}
+                );
 
-            isCallActive = true;
+            isCallActive =
+                true;
 
             callStatus.textContent =
                 "connected";
@@ -2381,7 +3183,8 @@ function createPeerConnection() {
                 "connected"
             ) {
 
-                isCallActive = true;
+                isCallActive =
+                    true;
 
                 callStatus.textContent =
                     "connected";
@@ -2435,8 +3238,8 @@ async function addPendingIceCandidates() {
     }
 
     for (
-        const candidate
-        of pendingIceCandidates
+        const candidate of
+        pendingIceCandidates
     ) {
 
         try {
@@ -2454,7 +3257,8 @@ async function addPendingIceCandidates() {
         }
     }
 
-    pendingIceCandidates = [];
+    pendingIceCandidates =
+        [];
 }
 
 // ==========================================
@@ -2473,11 +3277,18 @@ function showCallScreen(
 
     callTitle.textContent =
         type === "video"
-            ? `📹 ${otherUser?.username || "User"}`
-            : `📞 ${otherUser?.username || "User"}`;
+            ? `📹 ${
+                otherUser?.username ||
+                "User"
+            }`
+            : `📞 ${
+                otherUser?.username ||
+                "User"
+            }`;
 
     callStatus.textContent =
-        status || "connecting...";
+        status ||
+        "connecting...";
 
     cameraButton.style.display =
         type === "video"
@@ -2489,16 +3300,8 @@ function showCallScreen(
             ? "block"
             : "none";
 
-    // ======================================
-    // SELF PREVIEW MIRROR
-    // ======================================
-
-    localVideo.style.transform =
-        type === "video"
-            ? "scaleX(-1)"
-            : "none";
-
-    isCallActive = false;
+    isCallActive =
+        false;
 }
 
 // ==========================================
@@ -2523,7 +3326,9 @@ function toggleMute() {
 
     audioTracks.forEach(
         track => {
-            track.enabled = !enabled;
+
+            track.enabled =
+                !enabled;
         }
     );
 
@@ -2555,7 +3360,9 @@ function toggleCamera() {
 
     videoTracks.forEach(
         track => {
-            track.enabled = !enabled;
+
+            track.enabled =
+                !enabled;
         }
     );
 
@@ -2665,6 +3472,7 @@ function closeCallUI() {
             .getTracks()
             .forEach(
                 track => {
+
                     track.stop();
                 }
             );
@@ -2673,38 +3481,47 @@ function closeCallUI() {
     if (peerConnection) {
 
         try {
+
             peerConnection.close();
+
         } catch {}
     }
 
-    peerConnection = null;
+    peerConnection =
+        null;
 
     if (localVideo) {
-        localVideo.srcObject = null;
 
-        // Reset local preview transform
-        localVideo.style.transform =
-            "scaleX(-1)";
+        localVideo.srcObject =
+            null;
     }
 
     if (remoteVideo) {
-        remoteVideo.srcObject = null;
 
-        // Remote always normal
-        remoteVideo.style.transform =
-            "none";
+        remoteVideo.srcObject =
+            null;
     }
 
-    localStream = null;
-    remoteStream = null;
+    localStream =
+        null;
 
-    pendingIceCandidates = [];
+    remoteStream =
+        null;
 
-    currentCallType = null;
-    currentCallRole = null;
-    currentCallPartnerId = null;
+    pendingIceCandidates =
+        [];
 
-    isCallActive = false;
+    currentCallType =
+        null;
+
+    currentCallRole =
+        null;
+
+    currentCallPartnerId =
+        null;
+
+    isCallActive =
+        false;
 
     if (callOverlay) {
 
@@ -2718,7 +3535,8 @@ function closeCallUI() {
             "none";
     }
 
-    incomingCallData = null;
+    incomingCallData =
+        null;
 }
 
 // ==========================================
@@ -2737,37 +3555,61 @@ socket.on(
         }
 
         const sender =
-            Number(message.sender_id);
+            Number(
+                message.sender_id
+            );
 
         const receiver =
-            Number(message.receiver_id);
+            Number(
+                message.receiver_id
+            );
 
         const isThisChat =
             (
                 sender ===
-                    Number(currentUser.id) &&
+                    Number(
+                        currentUser.id
+                    ) &&
                 receiver ===
-                    Number(otherUser.id)
+                    Number(
+                        otherUser.id
+                    )
             )
             ||
             (
                 sender ===
-                    Number(otherUser.id) &&
+                    Number(
+                        otherUser.id
+                    ) &&
                 receiver ===
-                    Number(currentUser.id)
+                    Number(
+                        currentUser.id
+                    )
             );
 
         if (!isThisChat) {
             return;
         }
 
-        addMessage(message);
+        addMessage(
+            message
+        );
 
         scrollMessages();
 
+        /*
+         * 🔔 NEW MESSAGE NOTIFICATION
+         */
+
+        notifyNewMessage(
+            message
+        );
+
         if (
             sender ===
-            Number(otherUser.id)
+            Number(
+                otherUser.id
+            )
         ) {
 
             socket.emit(
@@ -2800,8 +3642,12 @@ socket.on(
         }
 
         if (
-            Number(data.userId) !==
-            Number(otherUser.id)
+            Number(
+                data.userId
+            ) !==
+            Number(
+                otherUser.id
+            )
         ) {
             return;
         }
@@ -2827,8 +3673,12 @@ socket.on(
         }
 
         if (
-            Number(data.userId) !==
-            Number(otherUser.id)
+            Number(
+                data.userId
+            ) !==
+            Number(
+                otherUser.id
+            )
         ) {
             return;
         }
@@ -2861,22 +3711,28 @@ socket.on(
         }
 
         if (
-            Number(data.userId) !==
-            Number(otherUser.id)
+            Number(
+                data.userId
+            ) !==
+            Number(
+                otherUser.id
+            )
         ) {
             return;
         }
 
         if (data.online) {
 
-            otherUserOnline = true;
+            otherUserOnline =
+                true;
 
             userStatus.textContent =
                 "online";
 
         } else {
 
-            otherUserOnline = false;
+            otherUserOnline =
+                false;
 
             if (data.lastSeen) {
 
@@ -2926,7 +3782,8 @@ async function updateOfflineStatus() {
 
         if (data.user.online) {
 
-            otherUserOnline = true;
+            otherUserOnline =
+                true;
 
             userStatus.textContent =
                 "online";
@@ -2934,9 +3791,12 @@ async function updateOfflineStatus() {
             return;
         }
 
-        otherUserOnline = false;
+        otherUserOnline =
+            false;
 
-        if (data.user.last_seen) {
+        if (
+            data.user.last_seen
+        ) {
 
             userStatus.textContent =
                 formatLastSeen(
@@ -2965,7 +3825,9 @@ async function updateOfflineStatus() {
 // FORMAT LAST SEEN
 // ==========================================
 
-function formatLastSeen(value) {
+function formatLastSeen(
+    value
+) {
 
     const date =
         new Date(value);
@@ -2975,6 +3837,7 @@ function formatLastSeen(value) {
             date.getTime()
         )
     ) {
+
         return "offline";
     }
 
@@ -3028,8 +3891,12 @@ socket.on(
         }
 
         if (
-            Number(data.userId) !==
-            Number(otherUser.id)
+            Number(
+                data.userId
+            ) !==
+            Number(
+                otherUser.id
+            )
         ) {
             return;
         }
@@ -3048,6 +3915,7 @@ socket.on(
                     );
 
                 if (seen) {
+
                     seen.textContent =
                         "✓✓";
                 }
@@ -3081,6 +3949,13 @@ socket.on(
         await loadMessages();
 
         await updateOfflineStatus();
+
+        /*
+         * Make sure push notification is registered
+         * after Socket.IO connection too.
+         */
+
+        registerPushNotifications();
     }
 );
 
@@ -3096,7 +3971,47 @@ socket.on(
             "Socket disconnected"
         );
 
-        isTyping = false;
+        isTyping =
+            false;
+    }
+);
+
+// ==========================================
+// VISIBILITY CHANGE
+// ==========================================
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        /*
+         * When user returns to the chat,
+         * mark messages as seen.
+         */
+
+        if (
+            document.visibilityState ===
+            "visible"
+        ) {
+
+            if (
+                currentUser &&
+                otherUser &&
+                socket.connected
+            ) {
+
+                socket.emit(
+                    "messages-seen",
+                    {
+                        userId:
+                            currentUser.id,
+
+                        otherUserId:
+                            otherUser.id
+                    }
+                );
+            }
+        }
     }
 );
 
@@ -3110,7 +4025,10 @@ logoutButton.addEventListener(
 
         stopTyping();
 
-        if (isRecordingVoice) {
+        if (
+            isRecordingVoice
+        ) {
+
             cancelVoiceRecording();
         }
 
@@ -3137,13 +4055,20 @@ logoutButton.addEventListener(
             "privateChatUser"
         );
 
-        currentUser = null;
-        otherUser = null;
+        currentUser =
+            null;
 
-        otherUserOnline = false;
-        isTyping = false;
+        otherUser =
+            null;
+
+        otherUserOnline =
+            false;
+
+        isTyping =
+            false;
 
         if (socket.connected) {
+
             socket.disconnect();
         }
 
