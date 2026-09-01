@@ -69,9 +69,7 @@ let localStream = null;
 let remoteStream = null;
 
 let currentCallType = null;
-
 let currentCallRole = null;
-
 let currentCallPartnerId = null;
 
 let incomingCallData = null;
@@ -1394,6 +1392,10 @@ function createCallUI() {
     callStatus.style.color = "#bbb";
     callStatus.style.marginBottom = "20px";
 
+    // ======================================
+    // REMOTE VIDEO
+    // ======================================
+
     remoteVideo =
         document.createElement("video");
 
@@ -1408,9 +1410,17 @@ function createCallUI() {
             maxHeight: "70vh",
             objectFit: "contain",
             background: "#000",
-            borderRadius: "15px"
+            borderRadius: "15px",
+
+            // IMPORTANT:
+            // Remote user must NOT be mirrored.
+            transform: "none"
         }
     );
+
+    // ======================================
+    // LOCAL VIDEO
+    // ======================================
 
     localVideo =
         document.createElement("video");
@@ -1430,7 +1440,14 @@ function createCallUI() {
             borderRadius: "12px",
             background: "#222",
             display: "none",
-            border: "2px solid #fff"
+            border: "2px solid #fff",
+
+            // ==================================
+            // WHATSAPP-STYLE SELF MIRROR
+            // ==================================
+            // Only YOUR local preview is mirrored.
+            // This does NOT modify the MediaStream.
+            transform: "scaleX(-1)"
         }
     );
 
@@ -1755,6 +1772,18 @@ async function startCall(callType) {
         localVideo.srcObject =
             localStream;
 
+        // ==================================
+        // LOCAL SELF PREVIEW
+        // ==================================
+        // Mirror ONLY the local preview.
+        // The actual stream sent through WebRTC
+        // remains completely unchanged.
+
+        localVideo.style.transform =
+            callType === "video"
+                ? "scaleX(-1)"
+                : "none";
+
         localVideo.style.display =
             callType === "video"
                 ? "block"
@@ -1911,6 +1940,15 @@ async function acceptIncomingCall() {
 
         localVideo.srcObject =
             localStream;
+
+        // ==================================
+        // LOCAL SELF PREVIEW MIRROR
+        // ==================================
+
+        localVideo.style.transform =
+            data.callType === "video"
+                ? "scaleX(-1)"
+                : "none";
 
         localVideo.style.display =
             data.callType === "video"
@@ -2262,6 +2300,15 @@ function createPeerConnection() {
     remoteVideo.srcObject =
         remoteStream;
 
+    // ======================================
+    // IMPORTANT:
+    // Remote video is ALWAYS normal.
+    // Never mirror the remote user's camera.
+    // ======================================
+
+    remoteVideo.style.transform =
+        "none";
+
     peerConnection.ontrack =
         event => {
 
@@ -2278,6 +2325,9 @@ function createPeerConnection() {
 
             remoteVideo.srcObject =
                 remoteStream;
+
+            remoteVideo.style.transform =
+                "none";
 
             remoteVideo.play()
                 .catch(() => {});
@@ -2437,6 +2487,15 @@ function showCallScreen(
     remoteVideo.style.display =
         type === "video"
             ? "block"
+            : "none";
+
+    // ======================================
+    // SELF PREVIEW MIRROR
+    // ======================================
+
+    localVideo.style.transform =
+        type === "video"
+            ? "scaleX(-1)"
             : "none";
 
     isCallActive = false;
@@ -2622,10 +2681,18 @@ function closeCallUI() {
 
     if (localVideo) {
         localVideo.srcObject = null;
+
+        // Reset local preview transform
+        localVideo.style.transform =
+            "scaleX(-1)";
     }
 
     if (remoteVideo) {
         remoteVideo.srcObject = null;
+
+        // Remote always normal
+        remoteVideo.style.transform =
+            "none";
     }
 
     localStream = null;
