@@ -23,8 +23,11 @@ body {
 body {
     background: #efeae2;
     overflow: hidden;
+
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+
+    touch-action: manipulation;
 }
 
 button,
@@ -35,6 +38,7 @@ input {
 button {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    user-select: none;
 }
 
 input {
@@ -55,10 +59,13 @@ input {
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     padding: 20px;
+
     background:
         radial-gradient(
             circle at top,
@@ -71,10 +78,15 @@ input {
 .login-card {
     width: 100%;
     max-width: 420px;
+
     padding: 40px 30px;
+
     background: #ffffff;
+
     border-radius: 24px;
+
     text-align: center;
+
     box-shadow:
         0 18px 60px rgba(0, 0, 0, 0.16);
 }
@@ -82,41 +94,55 @@ input {
 .logo {
     width: 78px;
     height: 78px;
+
     margin: 0 auto 20px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 50%;
+
     background: #25d366;
     color: #ffffff;
+
     font-size: 38px;
+
     box-shadow:
         0 8px 25px rgba(37, 211, 102, 0.30);
 }
 
 .login-card h1 {
     color: #111b21;
+
     font-size: 28px;
     line-height: 1.2;
+
     margin-bottom: 8px;
 }
 
 .subtitle {
     color: #667781;
+
     font-size: 15px;
     line-height: 1.6;
+
     margin-bottom: 30px;
 }
 
 .input-group {
     text-align: right;
+
     margin-bottom: 18px;
 }
 
 .input-group label {
     display: block;
+
     margin-bottom: 8px;
+
     color: #3b4a54;
+
     font-size: 14px;
     font-weight: bold;
 }
@@ -124,13 +150,19 @@ input {
 .input-group input {
     width: 100%;
     height: 52px;
+
     padding: 0 15px;
+
     border: 1px solid #d1d7db;
     border-radius: 12px;
+
     outline: none;
+
     color: #111b21;
     background: #ffffff;
+
     font-size: 16px;
+
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease;
@@ -138,6 +170,7 @@ input {
 
 .input-group input:focus {
     border-color: #25d366;
+
     box-shadow:
         0 0 0 3px rgba(37, 211, 102, 0.12);
 }
@@ -145,13 +178,18 @@ input {
 #loginButton {
     width: 100%;
     height: 52px;
+
     border: none;
     border-radius: 12px;
+
     background: #25d366;
     color: #ffffff;
+
     font-size: 16px;
     font-weight: bold;
+
     cursor: pointer;
+
     transition:
         background 0.2s ease,
         transform 0.12s ease;
@@ -172,8 +210,11 @@ input {
 
 .error {
     min-height: 22px;
+
     margin-top: 15px;
+
     color: #d93025;
+
     font-size: 14px;
     line-height: 1.5;
 }
@@ -187,10 +228,14 @@ input {
     width: 100%;
     height: 100vh;
     height: 100dvh;
+
     min-height: 0;
+
     display: flex;
     flex-direction: column;
+
     background: #efeae2;
+
     overflow: hidden;
 }
 
@@ -202,6 +247,7 @@ input {
 .chat-header {
     width: 100%;
     min-height: 68px;
+
     flex-shrink: 0;
 
     display: flex;
@@ -221,14 +267,17 @@ input {
 
 .user-info {
     min-width: 0;
+
     display: flex;
     align-items: center;
+
     gap: 10px;
 }
 
 .avatar {
     width: 46px;
     height: 46px;
+
     flex-shrink: 0;
 
     display: flex;
@@ -236,6 +285,7 @@ input {
     justify-content: center;
 
     border-radius: 50%;
+
     background: #dfe5e7;
 
     font-size: 24px;
@@ -251,6 +301,7 @@ input {
     max-width: 180px;
 
     color: #ffffff;
+
     font-size: 17px;
     line-height: 1.2;
 
@@ -261,9 +312,11 @@ input {
 
 .user-details span {
     display: block;
+
     margin-top: 3px;
 
     color: #d9fdd3;
+
     font-size: 12px;
     line-height: 1.2;
 
@@ -277,12 +330,14 @@ input {
 
     display: flex;
     align-items: center;
+
     gap: 2px;
 }
 
 .header-actions button {
     width: 42px;
     height: 42px;
+
     flex-shrink: 0;
 
     border: none;
@@ -296,6 +351,7 @@ input {
     justify-content: center;
 
     font-size: 19px;
+
     cursor: pointer;
 
     transition:
@@ -322,6 +378,7 @@ input {
 
 .messages {
     flex: 1;
+
     min-height: 0;
 
     overflow-y: auto;
@@ -331,7 +388,8 @@ input {
 
     display: flex;
     flex-direction: column;
-    gap: 4px;
+
+    gap: 5px;
 
     background-color: #efeae2;
 
@@ -346,9 +404,11 @@ input {
     scroll-behavior: smooth;
 
     overscroll-behavior-y: contain;
+
     -webkit-overflow-scrolling: touch;
 
     scrollbar-width: thin;
+
     scrollbar-color:
         rgba(84, 101, 111, 0.25)
         transparent;
@@ -384,6 +444,7 @@ input {
 
 .welcome-icon {
     margin-bottom: 10px;
+
     font-size: 42px;
 }
 
@@ -391,12 +452,14 @@ input {
     margin-bottom: 8px;
 
     color: #54656f;
+
     font-size: 18px;
     line-height: 1.4;
 }
 
 .welcome-message p {
     color: #667781;
+
     font-size: 14px;
     line-height: 1.8;
 }
@@ -416,21 +479,9 @@ input {
     min-width: 0;
 }
 
-
-/* =========================================================
-   MY MESSAGE
-   LEFT SIDE
-========================================================= */
-
 .message.message-out {
     justify-content: flex-start;
 }
-
-
-/* =========================================================
-   OTHER USER MESSAGE
-   RIGHT SIDE
-========================================================= */
 
 .message.message-in {
     justify-content: flex-end;
@@ -447,9 +498,9 @@ input {
 
     max-width: min(75%, 520px);
 
-    padding: 7px 9px 5px;
+    padding: 8px 10px 6px;
 
-    border-radius: 9px;
+    border-radius: 10px;
 
     box-shadow:
         0 1px 1px rgba(0, 0, 0, 0.08);
@@ -460,23 +511,15 @@ input {
     min-width: 0;
 }
 
-
-/* =========================================================
-   MY BUBBLE
-========================================================= */
-
 .message.message-out .message-bubble {
     background: #d9fdd3;
+
     border-top-right-radius: 2px;
 }
 
-
-/* =========================================================
-   OTHER USER BUBBLE
-========================================================= */
-
 .message.message-in .message-bubble {
     background: #ffffff;
+
     border-top-left-radius: 2px;
 }
 
@@ -490,8 +533,9 @@ input {
 
     color: #111b21;
 
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: 15.5px;
+
+    line-height: 1.6;
 
     white-space: pre-wrap;
 
@@ -506,7 +550,9 @@ input {
 
 .message-meta {
     display: inline-flex;
+
     align-items: center;
+
     gap: 3px;
 
     margin-right: 7px;
@@ -523,11 +569,6 @@ input {
     white-space: nowrap;
 }
 
-
-/* =========================================================
-   SEEN CHECK
-========================================================= */
-
 .message-seen {
     color: #53bdeb;
 
@@ -539,20 +580,57 @@ input {
 
 
 /* =========================================================
+   MESSAGE MEDIA
+========================================================= */
+
+.message-image {
+    display: block;
+
+    max-width: 100%;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+
+.message-video {
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+
+    border-radius: 8px;
+}
+
+.message-bubble audio {
+    max-width: 100%;
+}
+
+
+/* =========================================================
    MESSAGE INPUT AREA
 ========================================================= */
 
 .message-area {
     width: 100%;
-    min-height: 64px;
+
+    min-height: 62px;
+
     flex-shrink: 0;
 
     display: flex;
     align-items: center;
 
-    gap: 8px;
+    /*
+     * LTR makes the visual order exactly:
+     *
+     * Upload -> Input -> Voice -> Send
+     */
+    direction: ltr;
 
-    padding: 8px 10px;
+    gap: 6px;
+
+    padding: 5px 8px;
 
     background: #f0f2f5;
 
@@ -560,16 +638,22 @@ input {
         1px solid rgba(0, 0, 0, 0.04);
 
     padding-bottom:
-        max(8px, env(safe-area-inset-bottom));
+        max(5px, env(safe-area-inset-bottom));
 }
+
+
+/* =========================================================
+   MESSAGE INPUT
+========================================================= */
 
 .message-area input {
     flex: 1;
+
     min-width: 0;
 
     height: 48px;
 
-    padding: 0 18px;
+    padding: 0 16px;
 
     border: none;
     outline: none;
@@ -579,7 +663,10 @@ input {
     background: #ffffff;
     color: #111b21;
 
-    font-size: 15px;
+    font-size: 16px;
+
+    direction: rtl;
+    text-align: right;
 
     box-shadow:
         0 1px 2px rgba(0, 0, 0, 0.06);
@@ -599,13 +686,43 @@ input {
 
 
 /* =========================================================
-   ATTACH + SEND BUTTON
+   FOOTER BUTTON ORDER
+========================================================= */
+
+.message-area #mediaButton {
+    order: 1;
+}
+
+.message-area #messageInput {
+    order: 2;
+}
+
+.message-area #voiceButton {
+    order: 3;
+}
+
+.message-area #voiceCancelButton {
+    order: 3;
+}
+
+.message-area #voiceStatus {
+    order: 3;
+}
+
+.message-area #sendButton {
+    order: 4;
+}
+
+
+/* =========================================================
+   ATTACH + SEND
 ========================================================= */
 
 .attach-button,
 .send-button {
-    width: 46px;
-    height: 46px;
+    width: 48px;
+    height: 48px;
+
     flex-shrink: 0;
 
     border: none;
@@ -617,7 +734,7 @@ input {
 
     cursor: pointer;
 
-    font-size: 20px;
+    font-size: 21px;
 
     transition:
         transform 0.12s ease,
@@ -637,7 +754,7 @@ input {
     background: #25d366;
     color: #ffffff;
 
-    font-size: 18px;
+    font-size: 19px;
 
     box-shadow:
         0 3px 8px rgba(37, 211, 102, 0.25);
@@ -654,6 +771,48 @@ input {
 
 
 /* =========================================================
+   DYNAMIC VOICE BUTTON
+========================================================= */
+
+#voiceButton {
+    width: 48px !important;
+    height: 48px !important;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: none !important;
+    border-radius: 50% !important;
+
+    font-size: 21px !important;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+
+    transition:
+        transform 0.12s ease,
+        background 0.2s ease;
+}
+
+#voiceButton:active {
+    transform: scale(0.92);
+}
+
+#voiceStatus {
+    flex-shrink: 0;
+}
+
+#voiceCancelButton {
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
    TABLET
 ========================================================= */
 
@@ -666,7 +825,7 @@ input {
 
     .message.message-out .message-bubble,
     .message.message-in .message-bubble {
-        max-width: 78%;
+        max-width: 82%;
     }
 
     .messages {
@@ -684,6 +843,12 @@ input {
 
     body {
         overflow: hidden;
+
+        /*
+         * Prevent double-tap style interactions.
+         * Browser accessibility zoom may still override this.
+         */
+        touch-action: manipulation;
     }
 
 
@@ -721,6 +886,7 @@ input {
 
     .subtitle {
         font-size: 14px;
+
         margin-bottom: 25px;
     }
 
@@ -730,11 +896,14 @@ input {
 
     .input-group input {
         height: 50px;
+
         font-size: 16px;
     }
 
     #loginButton {
         height: 50px;
+
+        font-size: 16px;
     }
 
 
@@ -747,9 +916,6 @@ input {
 
         padding:
             6px 8px;
-
-        padding-top:
-            max(6px, env(safe-area-inset-top));
     }
 
     .avatar {
@@ -761,11 +927,10 @@ input {
 
     .user-info {
         gap: 8px;
-        min-width: 0;
     }
 
     .user-details h2 {
-        max-width: 130px;
+        max-width: 135px;
 
         font-size: 16px;
     }
@@ -775,18 +940,18 @@ input {
     }
 
     .header-actions {
-        gap: 0;
+        gap: 1px;
     }
 
     .header-actions button {
-        width: 38px;
-        height: 38px;
+        width: 42px;
+        height: 42px;
 
-        font-size: 16px;
+        font-size: 20px;
     }
 
     #logoutButton {
-        font-size: 18px;
+        font-size: 21px;
     }
 
 
@@ -798,52 +963,50 @@ input {
         padding:
             12px 7px;
 
-        gap: 3px;
-
-        overscroll-behavior-y: contain;
+        gap: 4px;
     }
 
     .message {
         margin:
-            1px 0;
+            2px 0;
     }
 
     .message.message-out .message-bubble,
     .message.message-in .message-bubble {
-        max-width: 82%;
+        /*
+         * Bigger mobile bubbles
+         */
+        max-width: 88%;
 
         padding:
-            6px 8px 4px;
+            9px 11px 7px;
 
-        border-radius: 8px;
-    }
-
-    .message.message-out .message-bubble {
-        border-top-right-radius: 2px;
-    }
-
-    .message.message-in .message-bubble {
-        border-top-left-radius: 2px;
+        border-radius: 11px;
     }
 
     .message-text {
-        font-size: 14px;
-        line-height: 1.5;
+        /*
+         * Bigger and easier to read
+         */
+        font-size: 16px;
+
+        line-height: 1.6;
     }
 
     .message-meta {
-        margin-right: 5px;
+        font-size: 10px;
 
-        font-size: 9px;
+        margin-right: 7px;
     }
 
     .message-seen {
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .welcome-message {
-        max-width: 300px;
-        padding: 20px;
+        max-width: 310px;
+
+        padding: 22px;
     }
 
     .welcome-icon {
@@ -860,55 +1023,67 @@ input {
 
 
     /* =====================================================
-       INPUT
+       BOTTOM MESSAGE BAR
     ===================================================== */
 
     .message-area {
-        min-height: 60px;
+        min-height: 62px;
 
         gap: 5px;
 
         padding:
-            7px;
+            5px 7px;
 
         padding-bottom:
-            max(7px, env(safe-area-inset-bottom));
+            max(5px, env(safe-area-inset-bottom));
     }
 
     .message-area input {
-        height: 46px;
+        height: 48px;
+
+        min-width: 0;
 
         padding:
-            0 15px;
+            0 14px;
+
+        border-radius: 24px;
 
         font-size: 16px;
+    }
 
-        border-radius: 23px;
+    .attach-button,
+    .send-button,
+    #voiceButton {
+        width: 48px !important;
+        height: 48px !important;
+
+        flex-shrink: 0;
     }
 
     .attach-button,
     .send-button {
-        width: 44px;
-        height: 44px;
-
-        font-size: 19px;
+        font-size: 21px;
     }
 
     .send-button {
-        font-size: 17px;
+        font-size: 19px;
+    }
+
+    #voiceButton {
+        font-size: 21px !important;
     }
 }
 
 
 /* =========================================================
-   VERY SMALL PHONES
+   SMALL MOBILE
 ========================================================= */
 
 @media (max-width: 380px) {
 
     .chat-header {
-        padding:
-            5px 6px;
+        padding-left: 5px;
+        padding-right: 5px;
     }
 
     .avatar {
@@ -922,102 +1097,116 @@ input {
         gap: 6px;
     }
 
-    .header-actions button {
-        width: 34px;
-        height: 34px;
+    .user-details h2 {
+        max-width: 105px;
 
         font-size: 15px;
     }
 
-    #logoutButton {
-        font-size: 17px;
-    }
-
-    .user-details h2 {
-        max-width: 105px;
-    }
-
-    .message.message-out .message-bubble,
-    .message.message-in .message-bubble {
-        max-width: 88%;
-    }
-
-    .message-text {
-        font-size: 14px;
-    }
-
-    .attach-button,
-    .send-button {
-        width: 41px;
-        height: 41px;
-    }
-
-    .message-area {
-        gap: 4px;
-    }
-
-    .message-area input {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-}
-
-
-/* =========================================================
-   EXTRA SMALL PHONES
-========================================================= */
-
-@media (max-width: 340px) {
-
     .header-actions button {
-        width: 32px;
-        height: 32px;
+        width: 39px;
+        height: 39px;
+
+        font-size: 18px;
     }
 
-    .user-details h2 {
-        max-width: 85px;
-    }
-
-    .avatar {
-        width: 38px;
-        height: 38px;
+    .messages {
+        padding:
+            10px 5px;
     }
 
     .message.message-out .message-bubble,
     .message.message-in .message-bubble {
         max-width: 91%;
+
+        padding:
+            8px 10px 6px;
+    }
+
+    .message-text {
+        font-size: 15.5px;
     }
 
     .message-area {
-        gap: 3px;
+        gap: 4px;
+
         padding-left: 5px;
         padding-right: 5px;
     }
 
+    .message-area input {
+        height: 46px;
+
+        padding:
+            0 11px;
+    }
+
     .attach-button,
-    .send-button {
-        width: 40px;
-        height: 40px;
+    .send-button,
+    #voiceButton {
+        width: 46px !important;
+        height: 46px !important;
     }
 }
 
 
 /* =========================================================
-   TOUCH DEVICES
+   VERY SMALL MOBILE
 ========================================================= */
 
-@media (hover: none) {
+@media (max-width: 340px) {
 
-    .header-actions button:hover {
-        background: transparent;
+    .header-actions button {
+        width: 36px;
+        height: 36px;
+
+        font-size: 17px;
     }
 
-    .attach-button:hover {
-        background: transparent;
+    .avatar {
+        width: 38px;
+        height: 38px;
+
+        font-size: 20px;
     }
 
-    .send-button:hover {
-        background: #25d366;
+    .user-details h2 {
+        max-width: 85px;
+
+        font-size: 14px;
+    }
+
+    .user-details span {
+        font-size: 10px;
+    }
+
+    .message-area {
+        gap: 3px;
+
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    .message-area input {
+        height: 44px;
+
+        padding:
+            0 9px;
+
+        font-size: 16px;
+    }
+
+    .attach-button,
+    .send-button,
+    #voiceButton {
+        width: 44px !important;
+        height: 44px !important;
+    }
+
+    .attach-button,
+    .send-button,
+    #voiceButton {
+        font-size: 19px !important;
     }
 }
 
@@ -1030,6 +1219,9 @@ input {
 
     .chat-header {
         min-height: 54px;
+
+        padding-top: 4px;
+        padding-bottom: 4px;
     }
 
     .avatar {
@@ -1042,17 +1234,20 @@ input {
     .header-actions button {
         width: 36px;
         height: 36px;
+
+        font-size: 17px;
     }
 
     .messages {
-        padding-top: 8px;
-        padding-bottom: 8px;
+        padding-top: 7px;
+        padding-bottom: 7px;
     }
 
     .message-area {
         min-height: 54px;
-        padding-top: 5px;
-        padding-bottom: 5px;
+
+        padding-top: 3px;
+        padding-bottom: 3px;
     }
 
     .message-area input {
@@ -1060,9 +1255,10 @@ input {
     }
 
     .attach-button,
-    .send-button {
-        width: 40px;
-        height: 40px;
+    .send-button,
+    #voiceButton {
+        width: 42px !important;
+        height: 42px !important;
     }
 }
 
@@ -1080,47 +1276,63 @@ input {
 
     .message-area {
         padding-left:
-            max(10px, env(safe-area-inset-left));
+            max(8px, env(safe-area-inset-left));
 
         padding-right:
-            max(10px, env(safe-area-inset-right));
+            max(8px, env(safe-area-inset-right));
 
         padding-bottom:
-            max(8px, env(safe-area-inset-bottom));
+            max(
+                5px,
+                env(safe-area-inset-bottom)
+            );
     }
 
     @media (max-width: 600px) {
 
         .chat-header {
             padding-top:
-                max(6px, env(safe-area-inset-top));
+                max(
+                    6px,
+                    env(safe-area-inset-top)
+                );
         }
 
         .message-area {
             padding-left:
-                max(7px, env(safe-area-inset-left));
+                max(
+                    5px,
+                    env(safe-area-inset-left)
+                );
 
             padding-right:
-                max(7px, env(safe-area-inset-right));
+                max(
+                    5px,
+                    env(safe-area-inset-right)
+                );
 
             padding-bottom:
-                max(7px, env(safe-area-inset-bottom));
+                max(
+                    5px,
+                    env(safe-area-inset-bottom)
+                );
         }
     }
 }
 
 
 /* =========================================================
-   REDUCE MOTION
+   MOBILE INPUT / BUTTON TOUCH
 ========================================================= */
 
-@media (prefers-reduced-motion: reduce) {
+@media (pointer: coarse) {
 
-    *,
-    *::before,
-    *::after {
-        scroll-behavior: auto !important;
-        transition-duration: 0.01ms !important;
-        animation-duration: 0.01ms !important;
+    button {
+        touch-action: manipulation;
+    }
+
+    .message-area button {
+        -webkit-user-select: none;
+        user-select: none;
     }
 }
