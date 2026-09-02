@@ -1,4 +1,3 @@
-
 /* =========================================================
    RESET
 ========================================================= */
@@ -49,6 +48,7 @@ textarea {
     display: none !important;
 }
 
+
 /* =========================================================
    LOGIN PAGE
 ========================================================= */
@@ -57,10 +57,13 @@ textarea {
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     padding: 20px;
+
     background:
         radial-gradient(
             circle at top,
@@ -73,10 +76,14 @@ textarea {
 .login-card {
     width: 100%;
     max-width: 420px;
+
     padding: 40px 30px;
+
     background: #ffffff;
     border-radius: 24px;
+
     text-align: center;
+
     box-shadow:
         0 18px 60px rgba(0, 0, 0, 0.16);
 }
@@ -84,14 +91,20 @@ textarea {
 .logo {
     width: 78px;
     height: 78px;
+
     margin: 0 auto 20px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 50%;
+
     background: #25d366;
     color: #ffffff;
+
     font-size: 38px;
+
     box-shadow:
         0 8px 25px rgba(37, 211, 102, 0.30);
 }
@@ -117,7 +130,9 @@ textarea {
 
 .input-group label {
     display: block;
+
     margin-bottom: 8px;
+
     color: #3b4a54;
     font-size: 14px;
     font-weight: bold;
@@ -126,13 +141,19 @@ textarea {
 .input-group input {
     width: 100%;
     height: 52px;
+
     padding: 0 15px;
+
     border: 1px solid #d1d7db;
     border-radius: 12px;
+
     outline: none;
+
     color: #111b21;
     background: #ffffff;
+
     font-size: 16px;
+
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease;
@@ -140,6 +161,7 @@ textarea {
 
 .input-group input:focus {
     border-color: #25d366;
+
     box-shadow:
         0 0 0 3px rgba(37, 211, 102, 0.12);
 }
@@ -147,13 +169,18 @@ textarea {
 #loginButton {
     width: 100%;
     height: 52px;
+
     border: none;
     border-radius: 12px;
+
     background: #25d366;
     color: #ffffff;
+
     font-size: 16px;
     font-weight: bold;
+
     cursor: pointer;
+
     transition:
         background 0.2s ease,
         transform 0.12s ease;
@@ -174,11 +201,15 @@ textarea {
 
 .error {
     min-height: 22px;
+
     margin-top: 15px;
+
     color: #d93025;
+
     font-size: 14px;
     line-height: 1.5;
 }
+
 
 /* =========================================================
    CHAT PAGE
@@ -188,12 +219,17 @@ textarea {
     width: 100%;
     height: 100vh;
     height: 100dvh;
+
     min-height: 0;
+
     display: flex;
     flex-direction: column;
+
     background: #efeae2;
+
     overflow: hidden;
 }
+
 
 /* =========================================================
    CHAT HEADER
@@ -202,35 +238,49 @@ textarea {
 .chat-header {
     width: 100%;
     min-height: 68px;
+
     flex-shrink: 0;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     padding: 8px 15px;
+
     background: #075e54;
     color: #ffffff;
+
     box-shadow:
         0 1px 3px rgba(0, 0, 0, 0.15);
+
     z-index: 10;
 }
 
 .user-info {
     min-width: 0;
+
     display: flex;
     align-items: center;
+
     gap: 10px;
 }
 
 .avatar {
     width: 46px;
     height: 46px;
+
     flex-shrink: 0;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 50%;
+
     background: #dfe5e7;
+
     font-size: 24px;
+
     user-select: none;
 }
 
@@ -240,9 +290,12 @@ textarea {
 
 .user-details h2 {
     max-width: 180px;
+
     color: #ffffff;
+
     font-size: 17px;
     line-height: 1.2;
+
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -250,10 +303,14 @@ textarea {
 
 .user-details span {
     display: block;
+
     margin-top: 3px;
+
     color: #d9fdd3;
+
     font-size: 12px;
     line-height: 1.2;
+
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -261,24 +318,33 @@ textarea {
 
 .header-actions {
     flex-shrink: 0;
+
     display: flex;
     align-items: center;
+
     gap: 2px;
 }
 
 .header-actions button {
     width: 42px;
     height: 42px;
+
     flex-shrink: 0;
+
     border: none;
     border-radius: 50%;
+
     background: transparent;
     color: #ffffff;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     font-size: 19px;
+
     cursor: pointer;
+
     transition:
         background 0.2s ease,
         transform 0.12s ease;
@@ -296,47 +362,34 @@ textarea {
     font-size: 21px;
 }
 
+
 /* =========================================================
-   MESSAGES AREA
+   MESSAGES
 ========================================================= */
 
 .messages {
     flex: 1;
+
     min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 20px 12px;
+    width: 100%;
+
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    background-color: #efeae2;
-    background-image:
-        radial-gradient(
-            rgba(84, 101, 111, 0.07) 1px,
-            transparent 1px
-        );
-    background-size: 20px 20px;
-    scroll-behavior: smooth;
+
+    gap: 3px;
+
+    padding: 12px 10px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
     overscroll-behavior-y: contain;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color:
-        rgba(84, 101, 111, 0.25)
-        transparent;
+
+    scroll-behavior: smooth;
+
+    background: #efeae2;
 }
 
-.messages::-webkit-scrollbar {
-    width: 6px;
-}
-
-.messages::-webkit-scrollbar-thumb {
-    background: rgba(84, 101, 111, 0.25);
-    border-radius: 10px;
-}
-
-.messages::-webkit-scrollbar-track {
-    background: transparent;
-}
 
 /* =========================================================
    WELCOME MESSAGE
@@ -344,28 +397,36 @@ textarea {
 
 .welcome-message {
     margin: auto;
+
     max-width: 340px;
+
     padding: 28px;
+
     text-align: center;
 }
 
 .welcome-icon {
     margin-bottom: 10px;
+
     font-size: 42px;
 }
 
 .welcome-message h3 {
     margin-bottom: 8px;
+
     color: #54656f;
+
     font-size: 18px;
     line-height: 1.4;
 }
 
 .welcome-message p {
     color: #667781;
+
     font-size: 14px;
     line-height: 1.8;
 }
+
 
 /* =========================================================
    MESSAGE ROW
@@ -373,26 +434,22 @@ textarea {
 
 .message {
     width: 100%;
+
     display: flex;
+
     margin: 2px 0;
+
     min-width: 0;
 }
-
-/* =========================================================
-   MY MESSAGE
-========================================================= */
 
 .message.message-out {
     justify-content: flex-start;
 }
 
-/* =========================================================
-   OTHER USER MESSAGE
-========================================================= */
-
 .message.message-in {
     justify-content: flex-end;
 }
+
 
 /* =========================================================
    MESSAGE BUBBLE
@@ -401,33 +458,34 @@ textarea {
 .message.message-out .message-bubble,
 .message.message-in .message-bubble {
     width: fit-content;
+
     max-width: min(75%, 520px);
+
     padding: 7px 9px 5px;
+
     border-radius: 9px;
+
     box-shadow:
         0 1px 1px rgba(0, 0, 0, 0.08);
+
     word-break: break-word;
     overflow-wrap: anywhere;
+
     min-width: 0;
 }
 
-/* =========================================================
-   MY BUBBLE
-========================================================= */
-
 .message.message-out .message-bubble {
     background: #d9fdd3;
+
     border-top-right-radius: 2px;
 }
 
-/* =========================================================
-   OTHER BUBBLE
-========================================================= */
-
 .message.message-in .message-bubble {
     background: #ffffff;
+
     border-top-left-radius: 2px;
 }
+
 
 /* =========================================================
    MESSAGE TEXT
@@ -435,13 +493,18 @@ textarea {
 
 .message-text {
     display: inline;
+
     color: #111b21;
+
     font-size: 17px;
     line-height: 1.6;
+
     white-space: pre-wrap;
+
     overflow-wrap: anywhere;
     word-break: break-word;
 }
+
 
 /* =========================================================
    MESSAGE META
@@ -449,27 +512,35 @@ textarea {
 
 .message-meta {
     display: inline-flex;
+
     align-items: center;
+
     gap: 3px;
+
     margin-right: 7px;
     margin-top: 3px;
+
     vertical-align: bottom;
+
     direction: ltr;
+
     color: #667781;
+
     font-size: 10px;
+
     white-space: nowrap;
 }
 
-/* =========================================================
-   SEEN CHECK
-========================================================= */
-
 .message-seen {
     color: #53bdeb;
+
     font-size: 13px;
+
     font-weight: bold;
+
     letter-spacing: -2px;
 }
+
 
 /* =========================================================
    MESSAGE INPUT AREA
@@ -477,46 +548,126 @@ textarea {
 
 .message-area {
     width: 100%;
+
     min-height: 64px;
+
     flex-shrink: 0;
+
     display: flex;
+    flex-direction: row;
+
     align-items: flex-end;
+
     gap: 7px;
+
     padding: 8px 10px;
+
     background: #f0f2f5;
+
     border-top:
         1px solid rgba(0, 0, 0, 0.04);
+
     padding-bottom:
         max(8px, env(safe-area-inset-bottom));
+
+    /*
+       IMPORTANT
+
+       Visual order:
+       📎 → INPUT → 🎤 → ➤
+    */
+    direction: ltr;
 }
 
+
 /* =========================================================
-   MESSAGE TEXTAREA
+   📎 ATTACH BUTTON
+========================================================= */
+
+.message-area .attach-button {
+    order: 1;
+
+    width: 46px;
+    height: 46px;
+
+    min-width: 46px;
+
+    flex: 0 0 46px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: #54656f;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.12s ease;
+}
+
+.message-area .attach-button:hover {
+    background: rgba(84, 101, 111, 0.10);
+}
+
+
+/* =========================================================
+   INPUT
 ========================================================= */
 
 .message-area #messageInput {
-    flex: 1;
+    order: 2;
+
+    flex: 1 1 auto;
+
     min-width: 0;
+
     width: 100%;
+
     height: 48px;
     min-height: 48px;
     max-height: 130px;
+
     padding: 12px 16px;
+
     border: none;
+
     outline: none;
+
     border-radius: 24px;
+
     background: #ffffff;
+
     color: #111b21;
+
     font-family: inherit;
+
     font-size: 15px;
+
     line-height: 22px;
+
     direction: rtl;
+
     text-align: right;
+
     resize: none;
+
     overflow-x: hidden;
     overflow-y: hidden;
+
     box-shadow:
         0 1px 2px rgba(0, 0, 0, 0.08);
+
     transition:
         box-shadow 0.2s ease;
 }
@@ -531,53 +682,127 @@ textarea {
     opacity: 1;
 }
 
+
 /* =========================================================
-   ATTACH + SEND BUTTON
+   🎤 VOICE BUTTON
 ========================================================= */
 
-.attach-button,
-.send-button {
-    width: 46px;
-    height: 46px;
-    flex-shrink: 0;
-    border: none;
-    border-radius: 50%;
+.message-area #voiceButton,
+.message-area .voice-button {
+    order: 3;
+
+    width: 46px !important;
+    height: 46px !important;
+
+    min-width: 46px;
+    min-height: 46px;
+
+    flex: 0 0 46px;
+
+    border: none !important;
+
+    border-radius: 50% !important;
+
+    background: #25d366 !important;
+
+    color: #ffffff;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    padding: 0 !important;
+
+    font-size: 21px;
+
     cursor: pointer;
-    font-family: inherit;
-    font-size: 20px;
+
     transition:
-        transform 0.12s ease,
-        background 0.2s ease;
+        opacity 0.2s ease,
+        transform 0.12s ease;
 }
 
-.attach-button {
-    background: transparent;
-    color: #54656f;
-}
 
-.attach-button:hover {
-    background: rgba(84, 101, 111, 0.10);
-}
+/* =========================================================
+   ➤ SEND BUTTON
+========================================================= */
 
-.send-button {
+.message-area .send-button {
+    order: 4;
+
+    width: 46px;
+    height: 46px;
+
+    min-width: 46px;
+
+    flex: 0 0 46px;
+
+    border: none;
+
+    border-radius: 50%;
+
     background: #25d366;
+
     color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
     font-size: 18px;
+
+    cursor: pointer;
+
     box-shadow:
         0 3px 8px rgba(37, 211, 102, 0.25);
+
+    transition:
+        background 0.2s ease,
+        transform 0.12s ease,
+        opacity 0.2s ease;
 }
 
-.send-button:hover {
+.message-area .send-button:hover {
     background: #20bd5a;
 }
 
-.send-button:active,
-.attach-button:active {
+.message-area #voiceButton:hover,
+.message-area .voice-button:hover {
+    opacity: 0.9;
+}
+
+.message-area .attach-button:active,
+.message-area #voiceButton:active,
+.message-area .voice-button:active,
+.message-area .send-button:active {
     transform: scale(0.92);
 }
+
+
+/* =========================================================
+   VOICE RECORDING STATUS
+========================================================= */
+
+.voice-status {
+    color: #667781;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+.voice-cancel-button {
+    border: none;
+
+    background: transparent;
+
+    color: #d93025;
+
+    cursor: pointer;
+}
+
 
 /* =========================================================
    TABLET
@@ -601,6 +826,7 @@ textarea {
     }
 }
 
+
 /* =========================================================
    MOBILE
 ========================================================= */
@@ -611,19 +837,21 @@ textarea {
         overflow: hidden;
     }
 
-    /* =====================================================
-       LOGIN
-    ===================================================== */
+
+    /* LOGIN */
 
     .login-page {
         min-height: 100vh;
         min-height: 100dvh;
+
         padding: 14px;
     }
 
     .login-card {
         max-width: 100%;
+
         padding: 32px 22px;
+
         border-radius: 20px;
     }
 
@@ -634,12 +862,15 @@ textarea {
     .logo {
         width: 70px;
         height: 70px;
+
         font-size: 34px;
+
         margin-bottom: 17px;
     }
 
     .subtitle {
         font-size: 14px;
+
         margin-bottom: 25px;
     }
 
@@ -649,6 +880,7 @@ textarea {
 
     .input-group input {
         height: 50px;
+
         font-size: 16px;
     }
 
@@ -656,14 +888,15 @@ textarea {
         height: 50px;
     }
 
-    /* =====================================================
-       HEADER
-    ===================================================== */
+
+    /* HEADER */
 
     .chat-header {
         min-height: 62px;
+
         padding:
             6px 8px;
+
         padding-top:
             max(6px, env(safe-area-inset-top));
     }
@@ -671,16 +904,19 @@ textarea {
     .avatar {
         width: 42px;
         height: 42px;
+
         font-size: 22px;
     }
 
     .user-info {
         gap: 8px;
+
         min-width: 0;
     }
 
     .user-details h2 {
         max-width: 130px;
+
         font-size: 16px;
     }
 
@@ -695,6 +931,7 @@ textarea {
     .header-actions button {
         width: 38px;
         height: 38px;
+
         font-size: 16px;
     }
 
@@ -702,14 +939,15 @@ textarea {
         font-size: 18px;
     }
 
-    /* =====================================================
-       MESSAGES
-    ===================================================== */
+
+    /* MESSAGES */
 
     .messages {
         padding:
             12px 7px;
+
         gap: 3px;
+
         overscroll-behavior-y: contain;
     }
 
@@ -720,9 +958,12 @@ textarea {
 
     .message.message-out .message-bubble,
     .message.message-in .message-bubble {
+
         max-width: 82%;
+
         padding:
             6px 8px 4px;
+
         border-radius: 8px;
     }
 
@@ -741,6 +982,7 @@ textarea {
 
     .message-meta {
         margin-right: 5px;
+
         font-size: 9px;
     }
 
@@ -750,6 +992,7 @@ textarea {
 
     .welcome-message {
         max-width: 300px;
+
         padding: 20px;
     }
 
@@ -765,41 +1008,74 @@ textarea {
         font-size: 13px;
     }
 
+
     /* =====================================================
        MESSAGE INPUT
     ===================================================== */
 
     .message-area {
         min-height: 60px;
+
         gap: 5px;
-        padding:
-            7px;
+
+        padding: 7px;
+
         padding-bottom:
             max(7px, env(safe-area-inset-bottom));
+
+        direction: ltr;
     }
 
-    .message-area #messageInput {
-        height: 46px;
-        min-height: 46px;
-        max-height: 130px;
-        padding:
-            11px 15px;
-        border-radius: 23px;
-        font-size: 16px;
-        line-height: 22px;
+    .message-area .attach-button,
+    .message-area #voiceButton,
+    .message-area .voice-button,
+    .message-area .send-button {
+
+        width: 44px !important;
+        height: 44px !important;
+
+        min-width: 44px;
+        min-height: 44px;
+
+        flex: 0 0 44px;
     }
 
-    .attach-button,
-    .send-button {
-        width: 44px;
-        height: 44px;
+    .message-area .attach-button {
+        order: 1;
+
         font-size: 19px;
     }
 
-    .send-button {
+    .message-area #messageInput {
+        order: 2;
+
+        height: 46px;
+        min-height: 46px;
+
+        padding:
+            11px 15px;
+
+        border-radius: 23px;
+
+        font-size: 16px;
+
+        line-height: 22px;
+    }
+
+    .message-area #voiceButton,
+    .message-area .voice-button {
+        order: 3;
+
+        font-size: 21px;
+    }
+
+    .message-area .send-button {
+        order: 4;
+
         font-size: 17px;
     }
 }
+
 
 /* =========================================================
    VERY SMALL PHONES
@@ -815,6 +1091,7 @@ textarea {
     .avatar {
         width: 40px;
         height: 40px;
+
         font-size: 21px;
     }
 
@@ -825,6 +1102,7 @@ textarea {
     .header-actions button {
         width: 34px;
         height: 34px;
+
         font-size: 15px;
     }
 
@@ -845,23 +1123,33 @@ textarea {
         font-size: 17px;
     }
 
-    .attach-button,
-    .send-button {
-        width: 41px;
-        height: 41px;
-    }
-
     .message-area {
         gap: 4px;
+    }
+
+    .message-area .attach-button,
+    .message-area #voiceButton,
+    .message-area .voice-button,
+    .message-area .send-button {
+
+        width: 41px !important;
+        height: 41px !important;
+
+        min-width: 41px;
+        min-height: 41px;
+
+        flex-basis: 41px;
     }
 
     .message-area #messageInput {
         min-height: 43px;
         height: 43px;
+
         padding-left: 12px;
         padding-right: 12px;
     }
 }
+
 
 /* =========================================================
    EXTRA SMALL PHONES
@@ -890,14 +1178,23 @@ textarea {
 
     .message-area {
         gap: 3px;
+
         padding-left: 5px;
         padding-right: 5px;
     }
 
-    .attach-button,
-    .send-button {
-        width: 40px;
-        height: 40px;
+    .message-area .attach-button,
+    .message-area #voiceButton,
+    .message-area .voice-button,
+    .message-area .send-button {
+
+        width: 40px !important;
+        height: 40px !important;
+
+        min-width: 40px;
+        min-height: 40px;
+
+        flex-basis: 40px;
     }
 
     .message-area #messageInput {
@@ -905,6 +1202,7 @@ textarea {
         height: 42px;
     }
 }
+
 
 /* =========================================================
    TOUCH DEVICES
@@ -925,6 +1223,7 @@ textarea {
     }
 }
 
+
 /* =========================================================
    LANDSCAPE MOBILE
 ========================================================= */
@@ -938,6 +1237,7 @@ textarea {
     .avatar {
         width: 38px;
         height: 38px;
+
         font-size: 20px;
     }
 
@@ -953,8 +1253,25 @@ textarea {
 
     .message-area {
         min-height: 54px;
+
         padding-top: 5px;
         padding-bottom: 5px;
+
+        direction: ltr;
+    }
+
+    .message-area .attach-button,
+    .message-area #voiceButton,
+    .message-area .voice-button,
+    .message-area .send-button {
+
+        width: 40px !important;
+        height: 40px !important;
+
+        min-width: 40px;
+        min-height: 40px;
+
+        flex-basis: 40px;
     }
 
     .message-area #messageInput {
@@ -962,13 +1279,8 @@ textarea {
         min-height: 42px;
         max-height: 120px;
     }
-
-    .attach-button,
-    .send-button {
-        width: 40px;
-        height: 40px;
-    }
 }
+
 
 /* =========================================================
    SAFE AREA
@@ -984,10 +1296,14 @@ textarea {
     .message-area {
         padding-left:
             max(10px, env(safe-area-inset-left));
+
         padding-right:
             max(10px, env(safe-area-inset-right));
+
         padding-bottom:
             max(8px, env(safe-area-inset-bottom));
+
+        direction: ltr;
     }
 
     @media (max-width: 600px) {
@@ -1000,13 +1316,18 @@ textarea {
         .message-area {
             padding-left:
                 max(7px, env(safe-area-inset-left));
+
             padding-right:
                 max(7px, env(safe-area-inset-right));
+
             padding-bottom:
                 max(7px, env(safe-area-inset-bottom));
+
+            direction: ltr;
         }
     }
 }
+
 
 /* =========================================================
    REDUCE MOTION
@@ -1019,7 +1340,9 @@ textarea {
     *::after {
 
         scroll-behavior: auto !important;
+
         transition-duration: 0.01ms !important;
+
         animation-duration: 0.01ms !important;
     }
 }

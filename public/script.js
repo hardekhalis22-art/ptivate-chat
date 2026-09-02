@@ -1,3 +1,4 @@
+
 const socket = io({
     autoConnect: false
 });
@@ -1514,9 +1515,13 @@ function createVoiceControls() {
             ".message-area"
         );
 
-    if (!messageArea) {
+    if (!messageArea || !sendButton) {
         return;
     }
+
+    // ======================================
+    // MAIN VOICE BUTTON
+    // ======================================
 
     voiceButton =
         document.createElement(
@@ -1529,66 +1534,44 @@ function createVoiceControls() {
     voiceButton.id =
         "voiceButton";
 
+    voiceButton.className =
+        "voice-button";
+
     voiceButton.title =
         "ناردنی دەنگ";
+
+    voiceButton.setAttribute(
+        "aria-label",
+        "ناردنی دەنگ"
+    );
 
     voiceButton.textContent =
         "🎤";
 
-    voiceButton.style.width =
-        "46px";
-
-    voiceButton.style.height =
-        "46px";
-
-    voiceButton.style.border =
-        "none";
-
-    voiceButton.style.borderRadius =
-        "50%";
-
-    voiceButton.style.background =
-        "#25d366";
-
-    voiceButton.style.color =
-        "#ffffff";
-
-    voiceButton.style.fontSize =
-        "20px";
-
-    voiceButton.style.cursor =
-        "pointer";
-
-    voiceButton.style.flexShrink =
-        "0";
+    Object.assign(
+        voiceButton.style,
+        {
+            width: "46px",
+            height: "46px",
+            border: "none",
+            borderRadius: "50%",
+            background: "#25d366",
+            color: "#ffffff",
+            fontSize: "20px",
+            cursor: "pointer",
+            flexShrink: "0",
+            order: "3"
+        }
+    );
 
     voiceButton.addEventListener(
         "click",
         toggleVoiceRecording
     );
 
-    voiceStatus =
-        document.createElement(
-            "span"
-        );
-
-    voiceStatus.id =
-        "voiceStatus";
-
-    voiceStatus.textContent =
-        "";
-
-    voiceStatus.style.display =
-        "none";
-
-    voiceStatus.style.fontSize =
-        "12px";
-
-    voiceStatus.style.color =
-        "#d93025";
-
-    voiceStatus.style.whiteSpace =
-        "nowrap";
+    // ======================================
+    // CANCEL BUTTON
+    // ======================================
 
     voiceCancelButton =
         document.createElement(
@@ -1598,37 +1581,77 @@ function createVoiceControls() {
     voiceCancelButton.type =
         "button";
 
+    voiceCancelButton.id =
+        "voiceCancelButton";
+
+    voiceCancelButton.className =
+        "voice-cancel-button";
+
+    voiceCancelButton.title =
+        "هەڵوەشاندنەوەی تۆمارکردن";
+
+    voiceCancelButton.setAttribute(
+        "aria-label",
+        "هەڵوەشاندنەوەی تۆمارکردن"
+    );
+
     voiceCancelButton.textContent =
         "✕";
 
-    voiceCancelButton.style.display =
-        "none";
-
-    voiceCancelButton.style.width =
-        "40px";
-
-    voiceCancelButton.style.height =
-        "40px";
-
-    voiceCancelButton.style.border =
-        "none";
-
-    voiceCancelButton.style.borderRadius =
-        "50%";
-
-    voiceCancelButton.style.background =
-        "#e53935";
-
-    voiceCancelButton.style.color =
-        "#ffffff";
-
-    voiceCancelButton.style.cursor =
-        "pointer";
+    Object.assign(
+        voiceCancelButton.style,
+        {
+            display: "none",
+            width: "40px",
+            height: "40px",
+            border: "none",
+            borderRadius: "50%",
+            background: "#e53935",
+            color: "#ffffff",
+            cursor: "pointer",
+            flexShrink: "0",
+            order: "3"
+        }
+    );
 
     voiceCancelButton.addEventListener(
         "click",
         cancelVoiceRecording
     );
+
+    // ======================================
+    // RECORDING STATUS
+    // ======================================
+
+    voiceStatus =
+        document.createElement(
+            "span"
+        );
+
+    voiceStatus.id =
+        "voiceStatus";
+
+    voiceStatus.className =
+        "voice-status";
+
+    voiceStatus.textContent =
+        "";
+
+    Object.assign(
+        voiceStatus.style,
+        {
+            display: "none",
+            fontSize: "12px",
+            color: "#d93025",
+            whiteSpace: "nowrap",
+            order: "3"
+        }
+    );
+
+    // ======================================
+    // EXACT ORDER
+    // 📎 → INPUT → 🎤 → ➤
+    // ======================================
 
     messageArea.insertBefore(
         voiceButton,

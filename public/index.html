@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 <html lang="ku" dir="rtl">
@@ -204,67 +205,62 @@
          MESSAGE AREA
     ======================================= -->
 
-    <footer class="message-area">
+   <!-- ======================================
+     MESSAGE AREA
+======================================= -->
 
-        <!-- Hidden file input -->
+<footer class="message-area">
 
-        <input
-            id="mediaInput"
-            type="file"
-            accept="image/*,video/*"
-            hidden
-        >
+    <!-- Hidden file input -->
+    <input
+        id="mediaInput"
+        type="file"
+        accept="image/*,video/*"
+        hidden
+    >
 
+    <!-- Media / Upload -->
+    <button
+        type="button"
+        id="mediaButton"
+        class="attach-button"
+        title="ناردنی وێنە یان ڤیدیۆ"
+        aria-label="ناردنی وێنە یان ڤیدیۆ"
+    >
+        📎
+    </button>
 
-        <!-- 1. Media / Upload -->
+    <!-- Message input -->
+    <textarea
+        id="messageInput"
+        rows="1"
+        placeholder="نامە بنووسە..."
+        autocomplete="off"
+    ></textarea>
 
-        <button
-            type="button"
-            id="mediaButton"
-            class="attach-button"
-            title="ناردنی وێنە یان ڤیدیۆ"
-            aria-label="ناردنی وێنە یان ڤیدیۆ"
-        >
-            📎
-        </button>
+    <!-- Voice button -->
+    <button
+        type="button"
+        id="voiceButton"
+        class="voice-button"
+        title="ناردنی دەنگ"
+        aria-label="ناردنی دەنگ"
+    >
+        🎤
+    </button>
 
+    <!-- Send -->
+    <button
+        type="button"
+        id="sendButton"
+        class="send-button"
+        title="ناردن"
+        aria-label="ناردن"
+    >
+        ➤
+    </button>
 
-        <!-- 2. Message input -->
-
-        <textarea
-            id="messageInput"
-            rows="1"
-            placeholder="نامە بنووسە..."
-            autocomplete="off"
-        ></textarea>
-
-
-        <!-- 3. Voice Message -->
-
-        <button
-            type="button"
-            id="voiceMessageButton"
-            class="voice-message-button"
-            title="ناردنی دەنگ"
-            aria-label="ناردنی دەنگ"
-        >
-            🎙️
-        </button>
-
-
-        <!-- 4. Send -->
-
-        <button
-            type="button"
-            id="sendButton"
-            class="send-button"
-            title="ناردن"
-            aria-label="ناردن"
-        >
-            ➤
-        </button>
-
-    </footer>
+</footer>
 
 </main>
 
@@ -280,3 +276,4 @@
 </body>
 
 </html>
+
