@@ -1,4 +1,3 @@
-
 const socket = io({
     autoConnect: false
 });
@@ -39,7 +38,6 @@ const videoCallButton =
 // ==========================================
 
 function resizeMessageInput() {
-
     if (!messageInput) {
         return;
     }
@@ -50,9 +48,7 @@ function resizeMessageInput() {
         window.getComputedStyle(messageInput);
 
     const maxHeight =
-        parseFloat(
-            computedStyle.maxHeight
-        ) || 130;
+        parseFloat(computedStyle.maxHeight) || 130;
 
     const newHeight =
         Math.min(
@@ -70,97 +66,34 @@ function resizeMessageInput() {
 }
 
 // ==========================================
-// EMOJI / CURSOR FIX
+// EMOJI / CURSOR / RTL FIX
 // ==========================================
 
-let emojiRegex = null;
-
-try {
-
-    emojiRegex =
-        new RegExp(
-            "\\p{Extended_Pictographic}",
-            "u"
-        );
-
-} catch {
-
-    try {
-
-        emojiRegex =
-            new RegExp(
-                "[\\u{1F000}-\\u{1FAFF}\\u{2600}-\\u{27BF}]",
-                "u"
-            );
-
-    } catch {
-
-        emojiRegex = null;
-    }
-}
-
-function containsEmoji(text) {
-
-    if (!text || !emojiRegex) {
-        return false;
-    }
-
-    return emojiRegex.test(text);
-}
-
 if (messageInput) {
+    messageInput.setAttribute(
+        "dir",
+        "auto"
+    );
+
+    messageInput.style.unicodeBidi =
+        "plaintext";
+
+    messageInput.style.direction =
+        "auto";
 
     messageInput.addEventListener(
-        "beforeinput",
-        event => {
-
-            if (
-                event.inputType !==
-                "insertText"
-            ) {
-                return;
-            }
-
-            const data =
-                event.data || "";
-
-            if (
-                !data ||
-                !containsEmoji(data)
-            ) {
-                return;
-            }
-
-            const start =
-                messageInput.selectionStart;
-
-            const end =
-                messageInput.selectionEnd;
-
-            if (
-                typeof start !== "number" ||
-                typeof end !== "number"
-            ) {
-                return;
-            }
-
-            event.preventDefault();
-
-            messageInput.setRangeText(
-                data,
-                start,
-                end,
-                "end"
+        "focus",
+        () => {
+            messageInput.setAttribute(
+                "dir",
+                "auto"
             );
 
-            messageInput.dispatchEvent(
-                new Event(
-                    "input",
-                    {
-                        bubbles: true
-                    }
-                )
-            );
+            messageInput.style.unicodeBidi =
+                "plaintext";
+
+            messageInput.style.direction =
+                "auto";
         }
     );
 }
@@ -186,27 +119,20 @@ const NOTIFICATION_SOUND =
     "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
 
 function canUseNotifications() {
-
-    return (
-        "Notification" in window
-    );
+    return "Notification" in window;
 }
 
 async function requestNotificationPermission() {
-
     if (!canUseNotifications()) {
         return false;
     }
 
     try {
-
         if (
             Notification.permission ===
             "granted"
         ) {
-
             notificationsEnabled = true;
-
             return true;
         }
 
@@ -214,9 +140,7 @@ async function requestNotificationPermission() {
             Notification.permission ===
             "denied"
         ) {
-
             notificationsEnabled = false;
-
             return false;
         }
 
@@ -229,7 +153,6 @@ async function requestNotificationPermission() {
         return notificationsEnabled;
 
     } catch (error) {
-
         console.error(
             "Notification permission error:",
             error
@@ -240,9 +163,7 @@ async function requestNotificationPermission() {
 }
 
 function playNotificationSound() {
-
     try {
-
         const audio =
             new Audio(
                 NOTIFICATION_SOUND
@@ -251,7 +172,6 @@ function playNotificationSound() {
         audio.volume = 0.3;
 
         audio.play().catch(() => {});
-
     } catch {}
 }
 
@@ -260,7 +180,6 @@ function showBrowserNotification(
     body,
     options = {}
 ) {
-
     if (!canUseNotifications()) {
         return null;
     }
@@ -273,7 +192,6 @@ function showBrowserNotification(
     }
 
     try {
-
         const notification =
             new Notification(
                 title,
@@ -297,7 +215,6 @@ function showBrowserNotification(
             );
 
         notification.onclick = () => {
-
             try {
                 window.focus();
             } catch {}
@@ -316,7 +233,6 @@ function showBrowserNotification(
         return notification;
 
     } catch (error) {
-
         console.error(
             "Notification error:",
             error
@@ -327,7 +243,6 @@ function showBrowserNotification(
 }
 
 function isChatVisible() {
-
     return (
         document.visibilityState ===
             "visible" &&
@@ -336,7 +251,6 @@ function isChatVisible() {
 }
 
 function notifyNewMessage(message) {
-
     if (!currentUser || !otherUser) {
         return;
     }
@@ -362,7 +276,6 @@ function notifyNewMessage(message) {
         message.media_type ===
         "image"
     ) {
-
         body =
             "🖼️ وێنەیەکی نوێت هەیە.";
 
@@ -370,7 +283,6 @@ function notifyNewMessage(message) {
         message.media_type ===
         "video"
     ) {
-
         body =
             "🎥 ڤیدیۆیەکی نوێت هەیە.";
 
@@ -378,7 +290,6 @@ function notifyNewMessage(message) {
         message.media_type ===
         "voice"
     ) {
-
         body =
             "🎤 دەنگێکی نوێت هەیە.";
 
@@ -386,12 +297,10 @@ function notifyNewMessage(message) {
         message.message &&
         message.message.trim()
     ) {
-
         body =
             message.message.trim();
 
         if (body.length > 120) {
-
             body =
                 body.substring(0, 117) +
                 "...";
@@ -413,7 +322,6 @@ function notifyNewMessage(message) {
 function notifyIncomingCall(
     callType
 ) {
-
     if (!currentUser || !otherUser) {
         return;
     }
@@ -445,12 +353,10 @@ function notifyIncomingCall(
 // ==========================================
 
 async function registerPushNotifications() {
-
     if (
         !("serviceWorker" in navigator) ||
         !("PushManager" in window)
     ) {
-
         console.log(
             "Push notifications are not supported."
         );
@@ -463,7 +369,6 @@ async function registerPushNotifications() {
     }
 
     try {
-
         const registration =
             await navigator.serviceWorker.register(
                 "/sw.js"
@@ -476,9 +381,7 @@ async function registerPushNotifications() {
 
         await requestNotificationPermission();
 
-        if (
-            !notificationsEnabled
-        ) {
+        if (!notificationsEnabled) {
             return;
         }
 
@@ -498,7 +401,6 @@ async function registerPushNotifications() {
             !data ||
             !data.publicKey
         ) {
-
             console.log(
                 "Push public key not available."
             );
@@ -510,7 +412,6 @@ async function registerPushNotifications() {
             await registration.pushManager.getSubscription();
 
         if (!subscription) {
-
             subscription =
                 await registration.pushManager.subscribe(
                     {
@@ -547,7 +448,6 @@ async function registerPushNotifications() {
         );
 
     } catch (error) {
-
         console.error(
             "Push registration error:",
             error
@@ -558,12 +458,12 @@ async function registerPushNotifications() {
 function urlBase64ToUint8Array(
     base64String
 ) {
-
     const padding =
         "=".repeat(
-            (4 -
-                (base64String.length % 4)) %
-                4
+            (
+                4 -
+                (base64String.length % 4)
+            ) % 4
         );
 
     const base64 =
@@ -571,14 +471,8 @@ function urlBase64ToUint8Array(
             base64String +
             padding
         )
-            .replace(
-                /-/g,
-                "+"
-            )
-            .replace(
-                /_/g,
-                "/"
-            );
+            .replace(/-/g, "+")
+            .replace(/_/g, "/");
 
     const rawData =
         window.atob(base64);
@@ -593,7 +487,6 @@ function urlBase64ToUint8Array(
         i < rawData.length;
         ++i
     ) {
-
         outputArray[i] =
             rawData.charCodeAt(i);
     }
@@ -625,9 +518,7 @@ let localStream = null;
 let remoteStream = null;
 
 let currentCallType = null;
-
 let currentCallRole = null;
-
 let currentCallPartnerId = null;
 
 let incomingCallData = null;
@@ -643,10 +534,12 @@ let isCallActive = false;
 const rtcConfiguration = {
     iceServers: [
         {
-            urls: "stun:stun.l.google.com:19302"
+            urls:
+                "stun:stun.l.google.com:19302"
         },
         {
-            urls: "stun:stun1.l.google.com:19302"
+            urls:
+                "stun:stun1.l.google.com:19302"
         }
     ]
 };
@@ -656,9 +549,7 @@ const rtcConfiguration = {
 // ==========================================
 
 function getOtherUser(userId) {
-
     if (Number(userId) === 1) {
-
         return {
             id: 2,
             username: "gure"
@@ -676,7 +567,6 @@ function getOtherUser(userId) {
 // ==========================================
 
 function showLogin() {
-
     loginPage.classList.remove(
         "hidden"
     );
@@ -687,7 +577,6 @@ function showLogin() {
 }
 
 function showChat() {
-
     loginPage.classList.add(
         "hidden"
     );
@@ -705,135 +594,129 @@ function showChat() {
 // LOGIN
 // ==========================================
 
-loginForm.addEventListener(
-    "submit",
-    async event => {
+if (loginForm) {
+    loginForm.addEventListener(
+        "submit",
+        async event => {
+            event.preventDefault();
 
-        event.preventDefault();
+            loginError.textContent = "";
 
-        loginError.textContent = "";
+            const username =
+                usernameInput.value.trim();
 
-        const username =
-            usernameInput.value.trim();
+            const pin =
+                pinInput.value.trim();
 
-        const pin =
-            pinInput.value.trim();
-
-        if (!username || !pin) {
-            return;
-        }
-
-        loginButton.disabled = true;
-        loginButton.textContent =
-            "چاوەڕوان بە...";
-
-        try {
-
-            const response =
-                await fetch(
-                    "/api/login",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            username,
-                            pin
-                        })
-                    }
-                );
-
-            const data =
-                await response.json();
-
-            if (
-                !response.ok ||
-                !data.success
-            ) {
-
-                loginError.textContent =
-                    data.message ||
-                    "ناوی بەکارهێنەر یان PIN هەڵەیە.";
-
+            if (!username || !pin) {
                 return;
             }
 
-            currentUser =
-                data.user;
-
-            localStorage.setItem(
-                "privateChatUser",
-                JSON.stringify(
-                    currentUser
-                )
-            );
-
-            otherUser =
-                getOtherUser(
-                    currentUser.id
-                );
-
-            otherUsername.textContent =
-                otherUser.username;
-
-            showChat();
-
-            createVoiceControls();
-
-            createCallUI();
-
-            await requestNotificationPermission();
-
-            registerPushNotifications();
-
-            if (!socket.connected) {
-                socket.connect();
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Login error:",
-                error
-            );
-
-            loginError.textContent =
-                "کێشەیەک ڕوویدا. تکایە دووبارە هەوڵ بدە.";
-
-        } finally {
-
-            loginButton.disabled = false;
+            loginButton.disabled = true;
 
             loginButton.textContent =
-                "چوونەژوورەوە";
+                "چاوەڕوان بە...";
+
+            try {
+                const response =
+                    await fetch(
+                        "/api/login",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                username,
+                                pin
+                            })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+                    loginError.textContent =
+                        data.message ||
+                        "ناوی بەکارهێنەر یان PIN هەڵەیە.";
+
+                    return;
+                }
+
+                currentUser =
+                    data.user;
+
+                localStorage.setItem(
+                    "privateChatUser",
+                    JSON.stringify(
+                        currentUser
+                    )
+                );
+
+                otherUser =
+                    getOtherUser(
+                        currentUser.id
+                    );
+
+                otherUsername.textContent =
+                    otherUser.username;
+
+                showChat();
+
+                createVoiceControls();
+
+                createCallUI();
+
+                await requestNotificationPermission();
+
+                registerPushNotifications();
+
+                if (!socket.connected) {
+                    socket.connect();
+                }
+
+            } catch (error) {
+                console.error(
+                    "Login error:",
+                    error
+                );
+
+                loginError.textContent =
+                    "کێشەیەک ڕوویدا. تکایە دووبارە هەوڵ بدە.";
+
+            } finally {
+                loginButton.disabled = false;
+
+                loginButton.textContent =
+                    "چوونەژوورەوە";
+            }
         }
-    }
-);
+    );
+}
 
 // ==========================================
 // RESTORE LOGIN
 // ==========================================
 
 async function restoreLogin() {
-
     const savedUser =
         localStorage.getItem(
             "privateChatUser"
         );
 
     if (!savedUser) {
-
         showLogin();
-
         return;
     }
 
     try {
-
         currentUser =
             JSON.parse(
                 savedUser
@@ -844,7 +727,6 @@ async function restoreLogin() {
             !currentUser.id ||
             !currentUser.username
         ) {
-
             throw new Error(
                 "Invalid saved user"
             );
@@ -873,7 +755,6 @@ async function restoreLogin() {
         }
 
     } catch (error) {
-
         console.error(
             "Restore login error:",
             error
@@ -895,7 +776,6 @@ async function restoreLogin() {
 // ==========================================
 
 async function loadMessages() {
-
     if (
         !currentUser ||
         !otherUser
@@ -904,7 +784,6 @@ async function loadMessages() {
     }
 
     try {
-
         const response =
             await fetch(
                 `/api/messages/${currentUser.id}/${otherUser.id}`
@@ -924,22 +803,18 @@ async function loadMessages() {
             !data.messages ||
             data.messages.length === 0
         ) {
-
             addWelcomeMessage();
-
             return;
         }
 
         data.messages.forEach(
             message => {
-
                 addMessage(
                     message
                 );
             }
         );
 
-        // Go directly to the newest message
         scrollMessages(true);
 
         socket.emit(
@@ -954,7 +829,6 @@ async function loadMessages() {
         );
 
     } catch (error) {
-
         console.error(
             "Load messages error:",
             error
@@ -967,7 +841,6 @@ async function loadMessages() {
 // ==========================================
 
 function addWelcomeMessage() {
-
     messagesContainer.innerHTML = `
         <div class="welcome-message">
             <div class="welcome-icon">
@@ -989,31 +862,25 @@ function addWelcomeMessage() {
 // SCROLL TO LATEST MESSAGE
 // ==========================================
 
-function scrollMessages(instant = false) {
-
+function scrollMessages(
+    instant = false
+) {
     if (!messagesContainer) {
         return;
     }
 
     requestAnimationFrame(() => {
-
         messagesContainer.scrollTo({
             top:
                 messagesContainer.scrollHeight,
+
             behavior:
                 instant
                     ? "auto"
                     : "smooth"
         });
 
-        /*
-         * دووبارە scroll دەکەینەوە دوای کەمێک کات،
-         * بۆ ئەوەی ئەگەر image/video load بوو
-         * هێشتا لە کۆتایی چات بمێنینەوە.
-         */
-
         setTimeout(() => {
-
             if (!messagesContainer) {
                 return;
             }
@@ -1021,9 +888,9 @@ function scrollMessages(instant = false) {
             messagesContainer.scrollTo({
                 top:
                     messagesContainer.scrollHeight,
+
                 behavior: "auto"
             });
-
         }, 150);
     });
 }
@@ -1033,7 +900,6 @@ function scrollMessages(instant = false) {
 // ==========================================
 
 function addMessage(message) {
-
     const welcome =
         messagesContainer.querySelector(
             ".welcome-message"
@@ -1068,7 +934,6 @@ function addMessage(message) {
             "image" &&
         message.media_url
     ) {
-
         const image =
             document.createElement("img");
 
@@ -1099,7 +964,6 @@ function addMessage(message) {
         image.addEventListener(
             "click",
             () => {
-
                 window.open(
                     message.media_url,
                     "_blank"
@@ -1119,7 +983,6 @@ function addMessage(message) {
             "video" &&
         message.media_url
     ) {
-
         const video =
             document.createElement("video");
 
@@ -1159,7 +1022,6 @@ function addMessage(message) {
             "voice" &&
         message.media_url
     ) {
-
         const voiceBox =
             document.createElement("div");
 
@@ -1221,12 +1083,22 @@ function addMessage(message) {
         message.message &&
         message.message.trim()
     ) {
-
         const text =
             document.createElement("span");
 
         text.className =
             "message-text";
+
+        text.setAttribute(
+            "dir",
+            "auto"
+        );
+
+        text.style.unicodeBidi =
+            "plaintext";
+
+        text.style.direction =
+            "auto";
 
         text.textContent =
             message.message;
@@ -1269,7 +1141,6 @@ function addMessage(message) {
     );
 
     if (isMine) {
-
         const seen =
             document.createElement("span");
 
@@ -1304,7 +1175,6 @@ function addMessage(message) {
 // ==========================================
 
 function sendMessage() {
-
     if (
         !currentUser ||
         !otherUser
@@ -1345,93 +1215,92 @@ function sendMessage() {
     messageInput.focus();
 }
 
-sendButton.addEventListener(
-    "click",
-    sendMessage
-);
+if (sendButton) {
+    sendButton.addEventListener(
+        "click",
+        sendMessage
+    );
+}
 
 // ==========================================
 // ENTER SEND
 // ==========================================
 
-messageInput.addEventListener(
-    "keydown",
-    event => {
+if (messageInput) {
+    messageInput.addEventListener(
+        "keydown",
+        event => {
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+                event.preventDefault();
 
-        if (
-            event.key === "Enter" &&
-            !event.shiftKey
-        ) {
-
-            event.preventDefault();
-
-            sendMessage();
+                sendMessage();
+            }
         }
-    }
-);
+    );
+}
 
 // ==========================================
 // TYPING + AUTO RESIZE
 // ==========================================
 
-messageInput.addEventListener(
-    "input",
-    () => {
+if (messageInput) {
+    messageInput.addEventListener(
+        "input",
+        () => {
+            resizeMessageInput();
 
-        resizeMessageInput();
+            if (
+                !currentUser ||
+                !otherUser ||
+                !socket.connected
+            ) {
+                return;
+            }
 
-        if (
-            !currentUser ||
-            !otherUser ||
-            !socket.connected
-        ) {
-            return;
-        }
+            if (
+                !messageInput.value.trim()
+            ) {
+                stopTyping();
+                return;
+            }
 
-        if (
-            !messageInput.value.trim()
-        ) {
+            if (!isTyping) {
+                isTyping =
+                    true;
 
-            stopTyping();
+                socket.emit(
+                    "typing",
+                    {
+                        senderId:
+                            currentUser.id,
 
-            return;
-        }
+                        receiverId:
+                            otherUser.id
+                    }
+                );
+            }
 
-        if (!isTyping) {
-
-            isTyping =
-                true;
-
-            socket.emit(
-                "typing",
-                {
-                    senderId:
-                        currentUser.id,
-
-                    receiverId:
-                        otherUser.id
-                }
+            clearTimeout(
+                typingTimer
             );
+
+            typingTimer =
+                setTimeout(
+                    stopTyping,
+                    1200
+                );
         }
-
-        clearTimeout(
-            typingTimer
-        );
-
-        typingTimer =
-            setTimeout(
-                stopTyping,
-                1200
-            );
-    }
-);
+    );
+}
 
 // ==========================================
 // STOP TYPING
 // ==========================================
 
 function stopTyping() {
-
     clearTimeout(
         typingTimer
     );
@@ -1471,11 +1340,9 @@ if (
     mediaButton &&
     mediaInput
 ) {
-
     mediaButton.addEventListener(
         "click",
         () => {
-
             mediaInput.click();
         }
     );
@@ -1483,7 +1350,6 @@ if (
     mediaInput.addEventListener(
         "change",
         async () => {
-
             const file =
                 mediaInput.files[0];
 
@@ -1506,7 +1372,6 @@ if (
 // ==========================================
 
 async function uploadMedia(file) {
-
     if (
         !currentUser ||
         !otherUser
@@ -1550,7 +1415,6 @@ async function uploadMedia(file) {
             file.type
         )
     ) {
-
         alert(
             "تەنها وێنە، ڤیدیۆ و دەنگ ڕێگەپێدراوە."
         );
@@ -1565,7 +1429,6 @@ async function uploadMedia(file) {
         file.size >
         maxSize
     ) {
-
         alert(
             "قەبارەی فایل زۆر گەورەیە."
         );
@@ -1592,7 +1455,6 @@ async function uploadMedia(file) {
     );
 
     try {
-
         if (mediaButton) {
             mediaButton.disabled =
                 true;
@@ -1614,7 +1476,6 @@ async function uploadMedia(file) {
             !response.ok ||
             !data.success
         ) {
-
             alert(
                 data.message ||
                 "ناردنی فایل سەرکەوتوو نەبوو."
@@ -1622,7 +1483,6 @@ async function uploadMedia(file) {
         }
 
     } catch (error) {
-
         console.error(
             "Upload error:",
             error
@@ -1633,7 +1493,6 @@ async function uploadMedia(file) {
         );
 
     } finally {
-
         if (mediaButton) {
             mediaButton.disabled =
                 false;
@@ -1646,7 +1505,6 @@ async function uploadMedia(file) {
 // ==========================================
 
 function createVoiceControls() {
-
     if (voiceButton) {
         return;
     }
@@ -1793,7 +1651,6 @@ function createVoiceControls() {
 // ==========================================
 
 function getRecorderMimeType() {
-
     const types = [
         "audio/webm;codecs=opus",
         "audio/webm",
@@ -1805,14 +1662,12 @@ function getRecorderMimeType() {
     for (
         const type of types
     ) {
-
         if (
             window.MediaRecorder &&
             MediaRecorder.isTypeSupported(
                 type
             )
         ) {
-
             return type;
         }
     }
@@ -1825,13 +1680,10 @@ function getRecorderMimeType() {
 // ==========================================
 
 async function toggleVoiceRecording() {
-
     if (
         isRecordingVoice
     ) {
-
         stopVoiceRecording();
-
         return;
     }
 
@@ -1839,12 +1691,10 @@ async function toggleVoiceRecording() {
 }
 
 async function startVoiceRecording() {
-
     if (
         !navigator.mediaDevices ||
         !navigator.mediaDevices.getUserMedia
     ) {
-
         alert(
             "ئەم وێبگەیە پشتگیری Microphone ناکات."
         );
@@ -1855,7 +1705,6 @@ async function startVoiceRecording() {
     if (
         !window.MediaRecorder
     ) {
-
         alert(
             "ئەم براوزەرە پشتگیری Voice Recording ناکات."
         );
@@ -1864,7 +1713,6 @@ async function startVoiceRecording() {
     }
 
     try {
-
         const stream =
             await navigator.mediaDevices.getUserMedia(
                 {
@@ -1892,12 +1740,10 @@ async function startVoiceRecording() {
 
         mediaRecorder.ondataavailable =
             event => {
-
                 if (
                     event.data &&
                     event.data.size > 0
                 ) {
-
                     audioChunks.push(
                         event.data
                     );
@@ -1906,7 +1752,6 @@ async function startVoiceRecording() {
 
         mediaRecorder.onstop =
             async () => {
-
                 stream
                     .getTracks()
                     .forEach(
@@ -1918,6 +1763,9 @@ async function startVoiceRecording() {
                 if (
                     !audioChunks.length
                 ) {
+                    mediaRecorder =
+                        null;
+
                     return;
                 }
 
@@ -1998,17 +1846,14 @@ async function startVoiceRecording() {
         recordingTimer =
             setInterval(
                 () => {
-
                     recordingSeconds++;
 
                     updateRecordingStatus();
-
                 },
                 1000
             );
 
     } catch (error) {
-
         console.error(
             "Microphone error:",
             error
@@ -2021,20 +1866,17 @@ async function startVoiceRecording() {
 }
 
 function updateRecordingStatus() {
-
     if (!voiceStatus) {
         return;
     }
 
     const minutes =
         Math.floor(
-            recordingSeconds /
-            60
+            recordingSeconds / 60
         );
 
     const seconds =
-        recordingSeconds %
-        60;
+        recordingSeconds % 60;
 
     voiceStatus.textContent =
         `🔴 ${minutes}:${String(
@@ -2046,7 +1888,6 @@ function updateRecordingStatus() {
 }
 
 function stopVoiceRecording() {
-
     if (
         !mediaRecorder ||
         !isRecordingVoice
@@ -2080,13 +1921,11 @@ function stopVoiceRecording() {
         mediaRecorder.state !==
         "inactive"
     ) {
-
         mediaRecorder.stop();
     }
 }
 
 function cancelVoiceRecording() {
-
     if (
         !mediaRecorder ||
         !isRecordingVoice
@@ -2110,7 +1949,6 @@ function cancelVoiceRecording() {
     if (
         mediaRecorder.stream
     ) {
-
         mediaRecorder.stream
             .getTracks()
             .forEach(
@@ -2126,7 +1964,6 @@ function cancelVoiceRecording() {
         mediaRecorder.state !==
         "inactive"
     ) {
-
         mediaRecorder.stop();
     }
 
@@ -2147,7 +1984,6 @@ function cancelVoiceRecording() {
 }
 
 async function uploadVoice(file) {
-
     if (
         !currentUser ||
         !otherUser
@@ -2156,7 +1992,6 @@ async function uploadVoice(file) {
     }
 
     try {
-
         const formData =
             new FormData();
 
@@ -2191,7 +2026,6 @@ async function uploadVoice(file) {
             !response.ok ||
             !data.success
         ) {
-
             alert(
                 data.message ||
                 "ناردنی دەنگ سەرکەوتوو نەبوو."
@@ -2199,7 +2033,6 @@ async function uploadVoice(file) {
         }
 
     } catch (error) {
-
         console.error(
             "Voice upload error:",
             error
@@ -2229,7 +2062,6 @@ let cameraButton = null;
 let endCallButton = null;
 
 function createCallUI() {
-
     if (callOverlay) {
         return;
     }
@@ -2597,7 +2429,6 @@ function createCallButton(
     text,
     title
 ) {
-
     const button =
         document.createElement(
             "button"
@@ -2634,11 +2465,9 @@ function createCallButton(
 // ==========================================
 
 if (voiceCallButton) {
-
     voiceCallButton.addEventListener(
         "click",
         () => {
-
             startCall(
                 "voice"
             );
@@ -2647,11 +2476,9 @@ if (voiceCallButton) {
 }
 
 if (videoCallButton) {
-
     videoCallButton.addEventListener(
         "click",
         () => {
-
             startCall(
                 "video"
             );
@@ -2666,7 +2493,6 @@ if (videoCallButton) {
 async function startCall(
     callType
 ) {
-
     if (
         !currentUser ||
         !otherUser
@@ -2675,7 +2501,6 @@ async function startCall(
     }
 
     if (isCallActive) {
-
         alert(
             "پەیوەندییەک هەنووکە چالاکە."
         );
@@ -2684,7 +2509,6 @@ async function startCall(
     }
 
     if (!socket.connected) {
-
         alert(
             "پەیوەندی بە server نییە."
         );
@@ -2693,7 +2517,6 @@ async function startCall(
     }
 
     try {
-
         currentCallType =
             callType;
 
@@ -2746,7 +2569,6 @@ async function startCall(
         );
 
     } catch (error) {
-
         console.error(
             "Start call error:",
             error
@@ -2767,7 +2589,6 @@ async function startCall(
 socket.on(
     "incoming-call",
     data => {
-
         if (!currentUser) {
             return;
         }
@@ -2784,7 +2605,6 @@ socket.on(
         }
 
         if (isCallActive) {
-
             socket.emit(
                 "reject-call",
                 {
@@ -2817,7 +2637,6 @@ socket.on(
             );
 
         if (incomingTitle) {
-
             incomingTitle.textContent =
                 data.callType ===
                 "video"
@@ -2826,7 +2645,6 @@ socket.on(
         }
 
         if (incomingText) {
-
             incomingText.textContent =
                 `${otherUser?.username || "User"} پەیوەندییەکی ${
                     data.callType ===
@@ -2837,7 +2655,6 @@ socket.on(
         }
 
         if (incomingOverlay) {
-
             incomingOverlay.style.display =
                 "flex";
         }
@@ -2849,7 +2666,6 @@ socket.on(
 // ==========================================
 
 async function acceptIncomingCall() {
-
     if (!incomingCallData) {
         return;
     }
@@ -2861,13 +2677,11 @@ async function acceptIncomingCall() {
         null;
 
     if (incomingOverlay) {
-
         incomingOverlay.style.display =
             "none";
     }
 
     try {
-
         currentCallType =
             data.callType;
 
@@ -2918,7 +2732,6 @@ async function acceptIncomingCall() {
         );
 
     } catch (error) {
-
         console.error(
             "Accept call error:",
             error
@@ -2948,7 +2761,6 @@ async function acceptIncomingCall() {
 // ==========================================
 
 function rejectIncomingCall() {
-
     if (!incomingCallData) {
         return;
     }
@@ -2968,7 +2780,6 @@ function rejectIncomingCall() {
         null;
 
     if (incomingOverlay) {
-
         incomingOverlay.style.display =
             "none";
     }
@@ -2981,7 +2792,6 @@ function rejectIncomingCall() {
 socket.on(
     "call-accepted",
     async data => {
-
         if (
             !currentUser ||
             currentCallRole !==
@@ -3002,7 +2812,6 @@ socket.on(
         }
 
         try {
-
             createPeerConnection();
 
             const offer =
@@ -3030,7 +2839,6 @@ socket.on(
                 "connected / waiting...";
 
         } catch (error) {
-
             console.error(
                 "Create offer error:",
                 error
@@ -3048,7 +2856,6 @@ socket.on(
 socket.on(
     "webrtc-offer",
     async data => {
-
         if (
             !currentUser ||
             !otherUser
@@ -3068,9 +2875,7 @@ socket.on(
         }
 
         try {
-
             if (!peerConnection) {
-
                 createPeerConnection();
             }
 
@@ -3112,7 +2917,6 @@ socket.on(
                 "connected";
 
         } catch (error) {
-
             console.error(
                 "Offer handling error:",
                 error
@@ -3130,7 +2934,6 @@ socket.on(
 socket.on(
     "webrtc-answer",
     async data => {
-
         if (
             !peerConnection ||
             !currentUser
@@ -3150,7 +2953,6 @@ socket.on(
         }
 
         try {
-
             await peerConnection.setRemoteDescription(
                 new RTCSessionDescription(
                     data.answer
@@ -3166,7 +2968,6 @@ socket.on(
                 "connected";
 
         } catch (error) {
-
             console.error(
                 "Answer error:",
                 error
@@ -3182,7 +2983,6 @@ socket.on(
 socket.on(
     "webrtc-ice-candidate",
     async data => {
-
         if (!currentUser) {
             return;
         }
@@ -3203,7 +3003,6 @@ socket.on(
         }
 
         try {
-
             const candidate =
                 new RTCIceCandidate(
                     data.candidate
@@ -3213,20 +3012,17 @@ socket.on(
                 peerConnection &&
                 peerConnection.remoteDescription
             ) {
-
                 await peerConnection.addIceCandidate(
                     candidate
                 );
 
             } else {
-
                 pendingIceCandidates.push(
                     candidate
                 );
             }
 
         } catch (error) {
-
             console.error(
                 "ICE candidate error:",
                 error
@@ -3240,7 +3036,6 @@ socket.on(
 // ==========================================
 
 function createPeerConnection() {
-
     if (peerConnection) {
         return peerConnection;
     }
@@ -3251,12 +3046,10 @@ function createPeerConnection() {
         );
 
     if (localStream) {
-
         localStream
             .getTracks()
             .forEach(
                 track => {
-
                     peerConnection.addTrack(
                         track,
                         localStream
@@ -3273,12 +3066,10 @@ function createPeerConnection() {
 
     peerConnection.ontrack =
         event => {
-
             event.streams[0]
                 .getTracks()
                 .forEach(
                     track => {
-
                         remoteStream.addTrack(
                             track
                         );
@@ -3302,7 +3093,6 @@ function createPeerConnection() {
 
     peerConnection.onicecandidate =
         event => {
-
             if (
                 !event.candidate ||
                 !currentUser ||
@@ -3328,7 +3118,6 @@ function createPeerConnection() {
 
     peerConnection.onconnectionstatechange =
         () => {
-
             if (!peerConnection) {
                 return;
             }
@@ -3342,7 +3131,6 @@ function createPeerConnection() {
                 peerConnection.connectionState ===
                 "connected"
             ) {
-
                 isCallActive =
                     true;
 
@@ -3354,7 +3142,6 @@ function createPeerConnection() {
                 peerConnection.connectionState ===
                 "failed"
             ) {
-
                 callStatus.textContent =
                     "connection failed";
             }
@@ -3363,7 +3150,6 @@ function createPeerConnection() {
                 peerConnection.connectionState ===
                 "disconnected"
             ) {
-
                 callStatus.textContent =
                     "disconnected";
             }
@@ -3371,7 +3157,6 @@ function createPeerConnection() {
 
     peerConnection.oniceconnectionstatechange =
         () => {
-
             console.log(
                 "ICE state:",
                 peerConnection.iceConnectionState
@@ -3386,7 +3171,6 @@ function createPeerConnection() {
 // ==========================================
 
 async function addPendingIceCandidates() {
-
     if (!peerConnection) {
         return;
     }
@@ -3401,15 +3185,12 @@ async function addPendingIceCandidates() {
         const candidate of
         pendingIceCandidates
     ) {
-
         try {
-
             await peerConnection.addIceCandidate(
                 candidate
             );
 
         } catch (error) {
-
             console.error(
                 "Pending ICE error:",
                 error
@@ -3429,7 +3210,6 @@ function showCallScreen(
     type,
     status
 ) {
-
     createCallUI();
 
     callOverlay.style.display =
@@ -3469,7 +3249,6 @@ function showCallScreen(
 // ==========================================
 
 function toggleMute() {
-
     if (!localStream) {
         return;
     }
@@ -3486,7 +3265,6 @@ function toggleMute() {
 
     audioTracks.forEach(
         track => {
-
             track.enabled =
                 !enabled;
         }
@@ -3503,7 +3281,6 @@ function toggleMute() {
 // ==========================================
 
 function toggleCamera() {
-
     if (!localStream) {
         return;
     }
@@ -3520,7 +3297,6 @@ function toggleCamera() {
 
     videoTracks.forEach(
         track => {
-
             track.enabled =
                 !enabled;
         }
@@ -3537,13 +3313,11 @@ function toggleCamera() {
 // ==========================================
 
 function endCurrentCall() {
-
     if (
         currentUser &&
         currentCallPartnerId &&
         socket.connected
     ) {
-
         socket.emit(
             "end-call",
             {
@@ -3566,7 +3340,6 @@ function endCurrentCall() {
 socket.on(
     "call-ended",
     () => {
-
         closeCallUI();
     }
 );
@@ -3578,7 +3351,6 @@ socket.on(
 socket.on(
     "call-rejected",
     () => {
-
         closeCallUI();
 
         alert(
@@ -3594,7 +3366,6 @@ socket.on(
 socket.on(
     "call-error",
     data => {
-
         closeCallUI();
 
         alert(
@@ -3611,9 +3382,7 @@ socket.on(
 socket.on(
     "call-ringing",
     () => {
-
         if (callStatus) {
-
             callStatus.textContent =
                 "ringing...";
         }
@@ -3625,25 +3394,19 @@ socket.on(
 // ==========================================
 
 function closeCallUI() {
-
     if (localStream) {
-
         localStream
             .getTracks()
             .forEach(
                 track => {
-
                     track.stop();
                 }
             );
     }
 
     if (peerConnection) {
-
         try {
-
             peerConnection.close();
-
         } catch {}
     }
 
@@ -3651,13 +3414,11 @@ function closeCallUI() {
         null;
 
     if (localVideo) {
-
         localVideo.srcObject =
             null;
     }
 
     if (remoteVideo) {
-
         remoteVideo.srcObject =
             null;
     }
@@ -3684,13 +3445,11 @@ function closeCallUI() {
         false;
 
     if (callOverlay) {
-
         callOverlay.style.display =
             "none";
     }
 
     if (incomingOverlay) {
-
         incomingOverlay.style.display =
             "none";
     }
@@ -3706,7 +3465,6 @@ function closeCallUI() {
 socket.on(
     "new-message",
     message => {
-
         if (
             !currentUser ||
             !otherUser
@@ -3767,7 +3525,6 @@ socket.on(
                 otherUser.id
             )
         ) {
-
             socket.emit(
                 "messages-seen",
                 {
@@ -3789,7 +3546,6 @@ socket.on(
 socket.on(
     "typing",
     data => {
-
         if (
             !currentUser ||
             !otherUser
@@ -3820,7 +3576,6 @@ socket.on(
 socket.on(
     "stop-typing",
     data => {
-
         if (
             !currentUser ||
             !otherUser
@@ -3840,12 +3595,9 @@ socket.on(
         }
 
         if (otherUserOnline) {
-
             userStatus.textContent =
                 "online";
-
         } else {
-
             updateOfflineStatus();
         }
     }
@@ -3858,7 +3610,6 @@ socket.on(
 socket.on(
     "user-status",
     data => {
-
         if (
             !currentUser ||
             !otherUser
@@ -3878,7 +3629,6 @@ socket.on(
         }
 
         if (data.online) {
-
             otherUserOnline =
                 true;
 
@@ -3886,19 +3636,15 @@ socket.on(
                 "online";
 
         } else {
-
             otherUserOnline =
                 false;
 
             if (data.lastSeen) {
-
                 userStatus.textContent =
                     formatLastSeen(
                         data.lastSeen
                     );
-
             } else {
-
                 updateOfflineStatus();
             }
         }
@@ -3910,13 +3656,11 @@ socket.on(
 // ==========================================
 
 async function updateOfflineStatus() {
-
     if (!otherUser) {
         return;
     }
 
     try {
-
         const response =
             await fetch(
                 `/api/user/${otherUser.id}/status`
@@ -3929,7 +3673,6 @@ async function updateOfflineStatus() {
             !data.success ||
             !data.user
         ) {
-
             userStatus.textContent =
                 "offline";
 
@@ -3937,7 +3680,6 @@ async function updateOfflineStatus() {
         }
 
         if (data.user.online) {
-
             otherUserOnline =
                 true;
 
@@ -3953,20 +3695,16 @@ async function updateOfflineStatus() {
         if (
             data.user.last_seen
         ) {
-
             userStatus.textContent =
                 formatLastSeen(
                     data.user.last_seen
                 );
-
         } else {
-
             userStatus.textContent =
                 "offline";
         }
 
     } catch (error) {
-
         console.error(
             "Status error:",
             error
@@ -3984,7 +3722,6 @@ async function updateOfflineStatus() {
 function formatLastSeen(
     value
 ) {
-
     const date =
         new Date(value);
 
@@ -3993,7 +3730,6 @@ function formatLastSeen(
             date.getTime()
         )
     ) {
-
         return "offline";
     }
 
@@ -4014,7 +3750,6 @@ function formatLastSeen(
         );
 
     if (today) {
-
         return `last seen today at ${time}`;
     }
 
@@ -4038,7 +3773,6 @@ function formatLastSeen(
 socket.on(
     "messages-seen",
     data => {
-
         if (
             !currentUser ||
             !otherUser
@@ -4064,14 +3798,12 @@ socket.on(
 
         mine.forEach(
             element => {
-
                 const seen =
                     element.querySelector(
                         ".message-seen"
                     );
 
                 if (seen) {
-
                     seen.textContent =
                         "✓✓";
                 }
@@ -4087,7 +3819,6 @@ socket.on(
 socket.on(
     "connect",
     async () => {
-
         console.log(
             "Socket connected:",
             socket.id
@@ -4121,7 +3852,6 @@ socket.on(
 socket.on(
     "disconnect",
     () => {
-
         console.log(
             "Socket disconnected"
         );
@@ -4138,18 +3868,15 @@ socket.on(
 document.addEventListener(
     "visibilitychange",
     () => {
-
         if (
             document.visibilityState ===
             "visible"
         ) {
-
             if (
                 currentUser &&
                 otherUser &&
                 socket.connected
             ) {
-
                 socket.emit(
                     "messages-seen",
                     {
@@ -4176,7 +3903,6 @@ document.addEventListener(
 window.addEventListener(
     "resize",
     () => {
-
         resizeMessageInput();
     }
 );
@@ -4185,62 +3911,60 @@ window.addEventListener(
 // LOGOUT
 // ==========================================
 
-logoutButton.addEventListener(
-    "click",
-    () => {
+if (logoutButton) {
+    logoutButton.addEventListener(
+        "click",
+        () => {
+            stopTyping();
 
-        stopTyping();
+            if (
+                isRecordingVoice
+            ) {
+                cancelVoiceRecording();
+            }
 
-        if (
-            isRecordingVoice
-        ) {
+            if (
+                currentCallPartnerId &&
+                socket.connected
+            ) {
+                socket.emit(
+                    "end-call",
+                    {
+                        callerId:
+                            currentUser.id,
 
-            cancelVoiceRecording();
-        }
+                        receiverId:
+                            currentCallPartnerId
+                    }
+                );
+            }
 
-        if (
-            currentCallPartnerId &&
-            socket.connected
-        ) {
+            closeCallUI();
 
-            socket.emit(
-                "end-call",
-                {
-                    callerId:
-                        currentUser.id,
-
-                    receiverId:
-                        currentCallPartnerId
-                }
+            localStorage.removeItem(
+                "privateChatUser"
             );
+
+            currentUser =
+                null;
+
+            otherUser =
+                null;
+
+            otherUserOnline =
+                false;
+
+            isTyping =
+                false;
+
+            if (socket.connected) {
+                socket.disconnect();
+            }
+
+            location.reload();
         }
-
-        closeCallUI();
-
-        localStorage.removeItem(
-            "privateChatUser"
-        );
-
-        currentUser =
-            null;
-
-        otherUser =
-            null;
-
-        otherUserOnline =
-            false;
-
-        isTyping =
-            false;
-
-        if (socket.connected) {
-
-            socket.disconnect();
-        }
-
-        location.reload();
-    }
-);
+    );
+}
 
 // ==========================================
 // START
