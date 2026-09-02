@@ -23,25 +23,23 @@ body {
 body {
     background: #efeae2;
     overflow: hidden;
-
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-
-    touch-action: manipulation;
 }
 
 button,
-input {
+input,
+textarea {
     font-family: inherit;
 }
 
 button {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    user-select: none;
 }
 
-input {
+input,
+textarea {
     -webkit-appearance: none;
     appearance: none;
 }
@@ -49,7 +47,6 @@ input {
 .hidden {
     display: none !important;
 }
-
 
 /* =========================================================
    LOGIN PAGE
@@ -59,13 +56,10 @@ input {
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     padding: 20px;
-
     background:
         radial-gradient(
             circle at top,
@@ -78,15 +72,10 @@ input {
 .login-card {
     width: 100%;
     max-width: 420px;
-
     padding: 40px 30px;
-
     background: #ffffff;
-
     border-radius: 24px;
-
     text-align: center;
-
     box-shadow:
         0 18px 60px rgba(0, 0, 0, 0.16);
 }
@@ -94,55 +83,41 @@ input {
 .logo {
     width: 78px;
     height: 78px;
-
     margin: 0 auto 20px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 50%;
-
     background: #25d366;
     color: #ffffff;
-
     font-size: 38px;
-
     box-shadow:
         0 8px 25px rgba(37, 211, 102, 0.30);
 }
 
 .login-card h1 {
     color: #111b21;
-
     font-size: 28px;
     line-height: 1.2;
-
     margin-bottom: 8px;
 }
 
 .subtitle {
     color: #667781;
-
     font-size: 15px;
     line-height: 1.6;
-
     margin-bottom: 30px;
 }
 
 .input-group {
     text-align: right;
-
     margin-bottom: 18px;
 }
 
 .input-group label {
     display: block;
-
     margin-bottom: 8px;
-
     color: #3b4a54;
-
     font-size: 14px;
     font-weight: bold;
 }
@@ -150,19 +125,13 @@ input {
 .input-group input {
     width: 100%;
     height: 52px;
-
     padding: 0 15px;
-
     border: 1px solid #d1d7db;
     border-radius: 12px;
-
     outline: none;
-
     color: #111b21;
     background: #ffffff;
-
     font-size: 16px;
-
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease;
@@ -170,7 +139,6 @@ input {
 
 .input-group input:focus {
     border-color: #25d366;
-
     box-shadow:
         0 0 0 3px rgba(37, 211, 102, 0.12);
 }
@@ -178,18 +146,13 @@ input {
 #loginButton {
     width: 100%;
     height: 52px;
-
     border: none;
     border-radius: 12px;
-
     background: #25d366;
     color: #ffffff;
-
     font-size: 16px;
     font-weight: bold;
-
     cursor: pointer;
-
     transition:
         background 0.2s ease,
         transform 0.12s ease;
@@ -210,15 +173,11 @@ input {
 
 .error {
     min-height: 22px;
-
     margin-top: 15px;
-
     color: #d93025;
-
     font-size: 14px;
     line-height: 1.5;
 }
-
 
 /* =========================================================
    CHAT PAGE
@@ -228,17 +187,12 @@ input {
     width: 100%;
     height: 100vh;
     height: 100dvh;
-
     min-height: 0;
-
     display: flex;
     flex-direction: column;
-
     background: #efeae2;
-
     overflow: hidden;
 }
-
 
 /* =========================================================
    CHAT HEADER
@@ -247,49 +201,35 @@ input {
 .chat-header {
     width: 100%;
     min-height: 68px;
-
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding: 8px 15px;
-
     background: #075e54;
     color: #ffffff;
-
     box-shadow:
         0 1px 3px rgba(0, 0, 0, 0.15);
-
     z-index: 10;
 }
 
 .user-info {
     min-width: 0;
-
     display: flex;
     align-items: center;
-
     gap: 10px;
 }
 
 .avatar {
     width: 46px;
     height: 46px;
-
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 50%;
-
     background: #dfe5e7;
-
     font-size: 24px;
-
     user-select: none;
 }
 
@@ -299,12 +239,9 @@ input {
 
 .user-details h2 {
     max-width: 180px;
-
     color: #ffffff;
-
     font-size: 17px;
     line-height: 1.2;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -312,14 +249,10 @@ input {
 
 .user-details span {
     display: block;
-
     margin-top: 3px;
-
     color: #d9fdd3;
-
     font-size: 12px;
     line-height: 1.2;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -327,33 +260,24 @@ input {
 
 .header-actions {
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
-
     gap: 2px;
 }
 
 .header-actions button {
     width: 42px;
     height: 42px;
-
     flex-shrink: 0;
-
     border: none;
     border-radius: 50%;
-
     background: transparent;
     color: #ffffff;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     font-size: 19px;
-
     cursor: pointer;
-
     transition:
         background 0.2s ease,
         transform 0.12s ease;
@@ -371,44 +295,30 @@ input {
     font-size: 21px;
 }
 
-
 /* =========================================================
    MESSAGES AREA
 ========================================================= */
 
 .messages {
     flex: 1;
-
     min-height: 0;
-
     overflow-y: auto;
     overflow-x: hidden;
-
     padding: 20px 12px;
-
     display: flex;
     flex-direction: column;
-
-    gap: 5px;
-
+    gap: 4px;
     background-color: #efeae2;
-
     background-image:
         radial-gradient(
             rgba(84, 101, 111, 0.07) 1px,
             transparent 1px
         );
-
     background-size: 20px 20px;
-
     scroll-behavior: smooth;
-
     overscroll-behavior-y: contain;
-
     -webkit-overflow-scrolling: touch;
-
     scrollbar-width: thin;
-
     scrollbar-color:
         rgba(84, 101, 111, 0.25)
         transparent;
@@ -427,43 +337,34 @@ input {
     background: transparent;
 }
 
-
 /* =========================================================
    WELCOME MESSAGE
 ========================================================= */
 
 .welcome-message {
     margin: auto;
-
     max-width: 340px;
-
     padding: 28px;
-
     text-align: center;
 }
 
 .welcome-icon {
     margin-bottom: 10px;
-
     font-size: 42px;
 }
 
 .welcome-message h3 {
     margin-bottom: 8px;
-
     color: #54656f;
-
     font-size: 18px;
     line-height: 1.4;
 }
 
 .welcome-message p {
     color: #667781;
-
     font-size: 14px;
     line-height: 1.8;
 }
-
 
 /* =========================================================
    MESSAGE ROW
@@ -471,22 +372,26 @@ input {
 
 .message {
     width: 100%;
-
     display: flex;
-
     margin: 2px 0;
-
     min-width: 0;
 }
+
+/* =========================================================
+   MY MESSAGE
+========================================================= */
 
 .message.message-out {
     justify-content: flex-start;
 }
 
+/* =========================================================
+   OTHER USER MESSAGE
+========================================================= */
+
 .message.message-in {
     justify-content: flex-end;
 }
-
 
 /* =========================================================
    MESSAGE BUBBLE
@@ -495,34 +400,33 @@ input {
 .message.message-out .message-bubble,
 .message.message-in .message-bubble {
     width: fit-content;
-
     max-width: min(75%, 520px);
-
-    padding: 8px 10px 6px;
-
-    border-radius: 10px;
-
+    padding: 7px 9px 5px;
+    border-radius: 9px;
     box-shadow:
         0 1px 1px rgba(0, 0, 0, 0.08);
-
     word-break: break-word;
     overflow-wrap: anywhere;
-
     min-width: 0;
 }
 
+/* =========================================================
+   MY BUBBLE
+========================================================= */
+
 .message.message-out .message-bubble {
     background: #d9fdd3;
-
     border-top-right-radius: 2px;
 }
 
+/* =========================================================
+   OTHER BUBBLE
+========================================================= */
+
 .message.message-in .message-bubble {
     background: #ffffff;
-
     border-top-left-radius: 2px;
 }
-
 
 /* =========================================================
    MESSAGE TEXT
@@ -530,19 +434,13 @@ input {
 
 .message-text {
     display: inline;
-
     color: #111b21;
-
-    font-size: 15.5px;
-
-    line-height: 1.6;
-
+    font-size: 15px;
+    line-height: 1.55;
     white-space: pre-wrap;
-
     overflow-wrap: anywhere;
     word-break: break-word;
 }
-
 
 /* =========================================================
    MESSAGE META
@@ -550,62 +448,27 @@ input {
 
 .message-meta {
     display: inline-flex;
-
     align-items: center;
-
     gap: 3px;
-
     margin-right: 7px;
     margin-top: 3px;
-
     vertical-align: bottom;
-
     direction: ltr;
-
     color: #667781;
-
     font-size: 10px;
-
     white-space: nowrap;
 }
 
-.message-seen {
-    color: #53bdeb;
-
-    font-size: 13px;
-    font-weight: bold;
-
-    letter-spacing: -2px;
-}
-
-
 /* =========================================================
-   MESSAGE MEDIA
+   SEEN CHECK
 ========================================================= */
 
-.message-image {
-    display: block;
-
-    max-width: 100%;
-
-    border-radius: 8px;
-
-    cursor: pointer;
+.message-seen {
+    color: #53bdeb;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: -2px;
 }
-
-.message-video {
-    display: block;
-
-    width: 100%;
-    max-width: 100%;
-
-    border-radius: 8px;
-}
-
-.message-bubble audio {
-    max-width: 100%;
-}
-
 
 /* =========================================================
    MESSAGE INPUT AREA
@@ -613,24 +476,14 @@ input {
 
 .message-area {
     width: 100%;
-
-    min-height: 62px;
-
+    min-height: 64px;
     flex-shrink: 0;
 
     display: flex;
-    align-items: center;
+    align-items: flex-end;
 
-    /*
-     * LTR makes the visual order exactly:
-     *
-     * Upload -> Input -> Voice -> Send
-     */
-    direction: ltr;
-
-    gap: 6px;
-
-    padding: 5px 8px;
+    gap: 7px;
+    padding: 8px 10px;
 
     background: #f0f2f5;
 
@@ -638,22 +491,23 @@ input {
         1px solid rgba(0, 0, 0, 0.04);
 
     padding-bottom:
-        max(5px, env(safe-area-inset-bottom));
+        max(8px, env(safe-area-inset-bottom));
 }
 
-
 /* =========================================================
-   MESSAGE INPUT
+   MESSAGE TEXTAREA
 ========================================================= */
 
-.message-area input {
+.message-area #messageInput {
     flex: 1;
-
     min-width: 0;
+    width: 100%;
 
     height: 48px;
+    min-height: 48px;
+    max-height: 130px;
 
-    padding: 0 16px;
+    padding: 12px 16px;
 
     border: none;
     outline: none;
@@ -663,65 +517,43 @@ input {
     background: #ffffff;
     color: #111b21;
 
-    font-size: 16px;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 22px;
 
     direction: rtl;
     text-align: right;
 
+    resize: none;
+
+    overflow-x: hidden;
+    overflow-y: hidden;
+
     box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.06);
+        0 1px 2px rgba(0, 0, 0, 0.08);
 
     transition:
         box-shadow 0.2s ease;
 }
 
-.message-area input:focus {
+.message-area #messageInput:focus {
     box-shadow:
         0 0 0 2px rgba(37, 211, 102, 0.18);
 }
 
-.message-area input::placeholder {
+.message-area #messageInput::placeholder {
     color: #8696a0;
+    opacity: 1;
 }
-
 
 /* =========================================================
-   FOOTER BUTTON ORDER
-========================================================= */
-
-.message-area #mediaButton {
-    order: 1;
-}
-
-.message-area #messageInput {
-    order: 2;
-}
-
-.message-area #voiceButton {
-    order: 3;
-}
-
-.message-area #voiceCancelButton {
-    order: 3;
-}
-
-.message-area #voiceStatus {
-    order: 3;
-}
-
-.message-area #sendButton {
-    order: 4;
-}
-
-
-/* =========================================================
-   ATTACH + SEND
+   ATTACH + SEND BUTTON
 ========================================================= */
 
 .attach-button,
 .send-button {
-    width: 48px;
-    height: 48px;
+    width: 46px;
+    height: 46px;
 
     flex-shrink: 0;
 
@@ -734,7 +566,8 @@ input {
 
     cursor: pointer;
 
-    font-size: 21px;
+    font-family: inherit;
+    font-size: 20px;
 
     transition:
         transform 0.12s ease,
@@ -747,14 +580,14 @@ input {
 }
 
 .attach-button:hover {
-    background: rgba(84, 101, 111, 0.1);
+    background: rgba(84, 101, 111, 0.10);
 }
 
 .send-button {
     background: #25d366;
     color: #ffffff;
 
-    font-size: 19px;
+    font-size: 18px;
 
     box-shadow:
         0 3px 8px rgba(37, 211, 102, 0.25);
@@ -769,55 +602,11 @@ input {
     transform: scale(0.92);
 }
 
-
-/* =========================================================
-   DYNAMIC VOICE BUTTON
-========================================================= */
-
-#voiceButton {
-    width: 48px !important;
-    height: 48px !important;
-
-    flex-shrink: 0;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border: none !important;
-    border-radius: 50% !important;
-
-    font-size: 21px !important;
-
-    cursor: pointer;
-
-    touch-action: manipulation;
-
-    transition:
-        transform 0.12s ease,
-        background 0.2s ease;
-}
-
-#voiceButton:active {
-    transform: scale(0.92);
-}
-
-#voiceStatus {
-    flex-shrink: 0;
-}
-
-#voiceCancelButton {
-    flex-shrink: 0;
-}
-
-
 /* =========================================================
    TABLET
 ========================================================= */
 
 @media (max-width: 900px) {
-
     .chat-header {
         padding-left: 12px;
         padding-right: 12px;
@@ -825,7 +614,7 @@ input {
 
     .message.message-out .message-bubble,
     .message.message-in .message-bubble {
-        max-width: 82%;
+        max-width: 78%;
     }
 
     .messages {
@@ -833,7 +622,6 @@ input {
         padding-right: 10px;
     }
 }
-
 
 /* =========================================================
    MOBILE
@@ -843,14 +631,7 @@ input {
 
     body {
         overflow: hidden;
-
-        /*
-         * Prevent double-tap style interactions.
-         * Browser accessibility zoom may still override this.
-         */
-        touch-action: manipulation;
     }
-
 
     /* =====================================================
        LOGIN
@@ -859,15 +640,12 @@ input {
     .login-page {
         min-height: 100vh;
         min-height: 100dvh;
-
         padding: 14px;
     }
 
     .login-card {
         max-width: 100%;
-
         padding: 32px 22px;
-
         border-radius: 20px;
     }
 
@@ -878,15 +656,12 @@ input {
     .logo {
         width: 70px;
         height: 70px;
-
         font-size: 34px;
-
         margin-bottom: 17px;
     }
 
     .subtitle {
         font-size: 14px;
-
         margin-bottom: 25px;
     }
 
@@ -896,16 +671,12 @@ input {
 
     .input-group input {
         height: 50px;
-
         font-size: 16px;
     }
 
     #loginButton {
         height: 50px;
-
-        font-size: 16px;
     }
-
 
     /* =====================================================
        HEADER
@@ -913,25 +684,25 @@ input {
 
     .chat-header {
         min-height: 62px;
-
         padding:
             6px 8px;
+        padding-top:
+            max(6px, env(safe-area-inset-top));
     }
 
     .avatar {
         width: 42px;
         height: 42px;
-
         font-size: 22px;
     }
 
     .user-info {
         gap: 8px;
+        min-width: 0;
     }
 
     .user-details h2 {
-        max-width: 135px;
-
+        max-width: 130px;
         font-size: 16px;
     }
 
@@ -940,20 +711,18 @@ input {
     }
 
     .header-actions {
-        gap: 1px;
+        gap: 0;
     }
 
     .header-actions button {
-        width: 42px;
-        height: 42px;
-
-        font-size: 20px;
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
     }
 
     #logoutButton {
-        font-size: 21px;
+        font-size: 18px;
     }
-
 
     /* =====================================================
        MESSAGES
@@ -962,51 +731,48 @@ input {
     .messages {
         padding:
             12px 7px;
-
-        gap: 4px;
+        gap: 3px;
+        overscroll-behavior-y: contain;
     }
 
     .message {
         margin:
-            2px 0;
+            1px 0;
     }
 
     .message.message-out .message-bubble,
     .message.message-in .message-bubble {
-        /*
-         * Bigger mobile bubbles
-         */
-        max-width: 88%;
-
+        max-width: 82%;
         padding:
-            9px 11px 7px;
+            6px 8px 4px;
+        border-radius: 8px;
+    }
 
-        border-radius: 11px;
+    .message.message-out .message-bubble {
+        border-top-right-radius: 2px;
+    }
+
+    .message.message-in .message-bubble {
+        border-top-left-radius: 2px;
     }
 
     .message-text {
-        /*
-         * Bigger and easier to read
-         */
-        font-size: 16px;
-
-        line-height: 1.6;
+        font-size: 14px;
+        line-height: 1.5;
     }
 
     .message-meta {
-        font-size: 10px;
-
-        margin-right: 7px;
+        margin-right: 5px;
+        font-size: 9px;
     }
 
     .message-seen {
-        font-size: 13px;
+        font-size: 12px;
     }
 
     .welcome-message {
-        max-width: 310px;
-
-        padding: 22px;
+        max-width: 300px;
+        padding: 20px;
     }
 
     .welcome-icon {
@@ -1021,75 +787,62 @@ input {
         font-size: 13px;
     }
 
-
     /* =====================================================
-       BOTTOM MESSAGE BAR
+       MESSAGE INPUT
     ===================================================== */
 
     .message-area {
-        min-height: 62px;
+        min-height: 60px;
 
         gap: 5px;
 
         padding:
-            5px 7px;
+            7px;
 
         padding-bottom:
-            max(5px, env(safe-area-inset-bottom));
+            max(7px, env(safe-area-inset-bottom));
     }
 
-    .message-area input {
-        height: 48px;
-
-        min-width: 0;
+    .message-area #messageInput {
+        height: 46px;
+        min-height: 46px;
+        max-height: 130px;
 
         padding:
-            0 14px;
+            11px 15px;
 
-        border-radius: 24px;
+        border-radius: 23px;
 
         font-size: 16px;
-    }
-
-    .attach-button,
-    .send-button,
-    #voiceButton {
-        width: 48px !important;
-        height: 48px !important;
-
-        flex-shrink: 0;
+        line-height: 22px;
     }
 
     .attach-button,
     .send-button {
-        font-size: 21px;
-    }
-
-    .send-button {
+        width: 44px;
+        height: 44px;
         font-size: 19px;
     }
 
-    #voiceButton {
-        font-size: 21px !important;
+    .send-button {
+        font-size: 17px;
     }
 }
 
-
 /* =========================================================
-   SMALL MOBILE
+   VERY SMALL PHONES
 ========================================================= */
 
 @media (max-width: 380px) {
 
     .chat-header {
-        padding-left: 5px;
-        padding-right: 5px;
+        padding:
+            5px 6px;
     }
 
     .avatar {
         width: 40px;
         height: 40px;
-
         font-size: 21px;
     }
 
@@ -1097,119 +850,108 @@ input {
         gap: 6px;
     }
 
-    .user-details h2 {
-        max-width: 105px;
-
+    .header-actions button {
+        width: 34px;
+        height: 34px;
         font-size: 15px;
     }
 
-    .header-actions button {
-        width: 39px;
-        height: 39px;
-
-        font-size: 18px;
+    #logoutButton {
+        font-size: 17px;
     }
 
-    .messages {
-        padding:
-            10px 5px;
+    .user-details h2 {
+        max-width: 105px;
     }
 
     .message.message-out .message-bubble,
     .message.message-in .message-bubble {
-        max-width: 91%;
-
-        padding:
-            8px 10px 6px;
+        max-width: 88%;
     }
 
     .message-text {
-        font-size: 15.5px;
+        font-size: 14px;
+    }
+
+    .attach-button,
+    .send-button {
+        width: 41px;
+        height: 41px;
     }
 
     .message-area {
         gap: 4px;
-
-        padding-left: 5px;
-        padding-right: 5px;
     }
 
-    .message-area input {
-        height: 46px;
-
-        padding:
-            0 11px;
-    }
-
-    .attach-button,
-    .send-button,
-    #voiceButton {
-        width: 46px !important;
-        height: 46px !important;
+    .message-area #messageInput {
+        min-height: 43px;
+        height: 43px;
+        padding-left: 12px;
+        padding-right: 12px;
     }
 }
 
-
 /* =========================================================
-   VERY SMALL MOBILE
+   EXTRA SMALL PHONES
 ========================================================= */
 
 @media (max-width: 340px) {
 
     .header-actions button {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
+    }
 
-        font-size: 17px;
+    .user-details h2 {
+        max-width: 85px;
     }
 
     .avatar {
         width: 38px;
         height: 38px;
-
-        font-size: 20px;
     }
 
-    .user-details h2 {
-        max-width: 85px;
-
-        font-size: 14px;
-    }
-
-    .user-details span {
-        font-size: 10px;
+    .message.message-out .message-bubble,
+    .message.message-in .message-bubble {
+        max-width: 91%;
     }
 
     .message-area {
         gap: 3px;
-
-        padding-left: 4px;
-        padding-right: 4px;
-    }
-
-    .message-area input {
-        height: 44px;
-
-        padding:
-            0 9px;
-
-        font-size: 16px;
+        padding-left: 5px;
+        padding-right: 5px;
     }
 
     .attach-button,
-    .send-button,
-    #voiceButton {
-        width: 44px !important;
-        height: 44px !important;
+    .send-button {
+        width: 40px;
+        height: 40px;
     }
 
-    .attach-button,
-    .send-button,
-    #voiceButton {
-        font-size: 19px !important;
+    .message-area #messageInput {
+        min-height: 42px;
+        height: 42px;
     }
 }
 
+/* =========================================================
+   TOUCH DEVICES
+========================================================= */
+
+@media (hover: none) {
+
+    .header-actions button:hover {
+        background: transparent;
+    }
+
+    .attach-button:hover {
+        background: transparent;
+    }
+
+    .send-button:hover {
+        background: #25d366;
+    }
+}
 
 /* =========================================================
    LANDSCAPE MOBILE
@@ -1219,49 +961,42 @@ input {
 
     .chat-header {
         min-height: 54px;
-
-        padding-top: 4px;
-        padding-bottom: 4px;
     }
 
     .avatar {
         width: 38px;
         height: 38px;
-
         font-size: 20px;
     }
 
     .header-actions button {
         width: 36px;
         height: 36px;
-
-        font-size: 17px;
     }
 
     .messages {
-        padding-top: 7px;
-        padding-bottom: 7px;
+        padding-top: 8px;
+        padding-bottom: 8px;
     }
 
     .message-area {
         min-height: 54px;
-
-        padding-top: 3px;
-        padding-bottom: 3px;
+        padding-top: 5px;
+        padding-bottom: 5px;
     }
 
-    .message-area input {
+    .message-area #messageInput {
         height: 42px;
+        min-height: 42px;
+        max-height: 120px;
     }
 
     .attach-button,
-    .send-button,
-    #voiceButton {
-        width: 42px !important;
-        height: 42px !important;
+    .send-button {
+        width: 40px;
+        height: 40px;
     }
 }
-
 
 /* =========================================================
    SAFE AREA
@@ -1276,63 +1011,46 @@ input {
 
     .message-area {
         padding-left:
-            max(8px, env(safe-area-inset-left));
+            max(10px, env(safe-area-inset-left));
 
         padding-right:
-            max(8px, env(safe-area-inset-right));
+            max(10px, env(safe-area-inset-right));
 
         padding-bottom:
-            max(
-                5px,
-                env(safe-area-inset-bottom)
-            );
+            max(8px, env(safe-area-inset-bottom));
     }
 
     @media (max-width: 600px) {
 
         .chat-header {
             padding-top:
-                max(
-                    6px,
-                    env(safe-area-inset-top)
-                );
+                max(6px, env(safe-area-inset-top));
         }
 
         .message-area {
             padding-left:
-                max(
-                    5px,
-                    env(safe-area-inset-left)
-                );
+                max(7px, env(safe-area-inset-left));
 
             padding-right:
-                max(
-                    5px,
-                    env(safe-area-inset-right)
-                );
+                max(7px, env(safe-area-inset-right));
 
             padding-bottom:
-                max(
-                    5px,
-                    env(safe-area-inset-bottom)
-                );
+                max(7px, env(safe-area-inset-bottom));
         }
     }
 }
 
-
 /* =========================================================
-   MOBILE INPUT / BUTTON TOUCH
+   REDUCE MOTION
 ========================================================= */
 
-@media (pointer: coarse) {
+@media (prefers-reduced-motion: reduce) {
 
-    button {
-        touch-action: manipulation;
-    }
-
-    .message-area button {
-        -webkit-user-select: none;
-        user-select: none;
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }
