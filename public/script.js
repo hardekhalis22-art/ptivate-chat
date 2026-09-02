@@ -1,3 +1,4 @@
+
 const socket = io({
     autoConnect: false
 });
@@ -43,7 +44,6 @@ function resizeMessageInput() {
         return;
     }
 
-    // Reset first so scrollHeight is recalculated correctly
     messageInput.style.height = "auto";
 
     const computedStyle =
@@ -63,18 +63,106 @@ function resizeMessageInput() {
     messageInput.style.height =
         `${newHeight}px`;
 
-    /*
-     * Up to 5 lines:
-     * no scrollbar.
-     *
-     * More than 5 lines:
-     * only the input scrolls.
-     */
-
     messageInput.style.overflowY =
         messageInput.scrollHeight > maxHeight
             ? "auto"
             : "hidden";
+}
+
+// ==========================================
+// EMOJI / CURSOR FIX
+// ==========================================
+
+let emojiRegex = null;
+
+try {
+
+    emojiRegex =
+        new RegExp(
+            "\\p{Extended_Pictographic}",
+            "u"
+        );
+
+} catch {
+
+    try {
+
+        emojiRegex =
+            new RegExp(
+                "[\\u{1F000}-\\u{1FAFF}\\u{2600}-\\u{27BF}]",
+                "u"
+            );
+
+    } catch {
+
+        emojiRegex = null;
+    }
+}
+
+function containsEmoji(text) {
+
+    if (!text || !emojiRegex) {
+        return false;
+    }
+
+    return emojiRegex.test(text);
+}
+
+if (messageInput) {
+
+    messageInput.addEventListener(
+        "beforeinput",
+        event => {
+
+            if (
+                event.inputType !==
+                "insertText"
+            ) {
+                return;
+            }
+
+            const data =
+                event.data || "";
+
+            if (
+                !data ||
+                !containsEmoji(data)
+            ) {
+                return;
+            }
+
+            const start =
+                messageInput.selectionStart;
+
+            const end =
+                messageInput.selectionEnd;
+
+            if (
+                typeof start !== "number" ||
+                typeof end !== "number"
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+
+            messageInput.setRangeText(
+                data,
+                start,
+                end,
+                "end"
+            );
+
+            messageInput.dispatchEvent(
+                new Event(
+                    "input",
+                    {
+                        bubbles: true
+                    }
+                )
+            );
+        }
+    );
 }
 
 // ==========================================
@@ -608,7 +696,6 @@ function showChat() {
         "hidden"
     );
 
-    // Resize after chat becomes visible
     requestAnimationFrame(() => {
         resizeMessageInput();
     });
@@ -852,7 +939,8 @@ async function loadMessages() {
             }
         );
 
-        scrollMessages();
+        // Go directly to the newest message
+        scrollMessages(true);
 
         socket.emit(
             "messages-seen",
@@ -895,6 +983,49 @@ function addWelcomeMessage() {
             </p>
         </div>
     `;
+}
+
+// ==========================================
+// SCROLL TO LATEST MESSAGE
+// ==========================================
+
+function scrollMessages(instant = false) {
+
+    if (!messagesContainer) {
+        return;
+    }
+
+    requestAnimationFrame(() => {
+
+        messagesContainer.scrollTo({
+            top:
+                messagesContainer.scrollHeight,
+            behavior:
+                instant
+                    ? "auto"
+                    : "smooth"
+        });
+
+        /*
+         * دووبارە scroll دەکەینەوە دوای کەمێک کات،
+         * بۆ ئەوەی ئەگەر image/video load بوو
+         * هێشتا لە کۆتایی چات بمێنینەوە.
+         */
+
+        setTimeout(() => {
+
+            if (!messagesContainer) {
+                return;
+            }
+
+            messagesContainer.scrollTo({
+                top:
+                    messagesContainer.scrollHeight,
+                behavior: "auto"
+            });
+
+        }, 150);
+    });
 }
 
 // ==========================================
@@ -1207,10 +1338,8 @@ function sendMessage() {
         }
     );
 
-    // Clear input
     messageInput.value = "";
 
-    // Return input to one-line height
     resizeMessageInput();
 
     messageInput.focus();
@@ -1249,9 +1378,6 @@ messageInput.addEventListener(
     "input",
     () => {
 
-        // IMPORTANT:
-        // Resize only the input.
-        // Do NOT scroll the messages here.
         resizeMessageInput();
 
         if (
@@ -2108,10 +2234,6 @@ function createCallUI() {
         return;
     }
 
-    // ======================================
-    // CALL OVERLAY
-    // ======================================
-
     callOverlay =
         document.createElement(
             "div"
@@ -2423,7 +2545,8 @@ function createCallUI() {
                 "12px",
             background:
                 "#d93025",
-            color: "#fff",
+            color:
+                "#fff",
             cursor:
                 "pointer",
             fontSize:
@@ -3985,7 +4108,6 @@ socket.on(
 
         registerPushNotifications();
 
-        // Make sure input is correct after messages load
         requestAnimationFrame(() => {
             resizeMessageInput();
         });
@@ -4040,7 +4162,6 @@ document.addEventListener(
                 );
             }
 
-            // Recalculate input after returning to page
             requestAnimationFrame(() => {
                 resizeMessageInput();
             });
