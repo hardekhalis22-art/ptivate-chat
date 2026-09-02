@@ -34,6 +34,50 @@ const videoCallButton =
     document.getElementById("videoCallButton");
 
 // ==========================================
+// MESSAGE INPUT AUTO RESIZE
+// ==========================================
+
+function resizeMessageInput() {
+
+    if (!messageInput) {
+        return;
+    }
+
+    // Reset first so scrollHeight is recalculated correctly
+    messageInput.style.height = "auto";
+
+    const computedStyle =
+        window.getComputedStyle(messageInput);
+
+    const maxHeight =
+        parseFloat(
+            computedStyle.maxHeight
+        ) || 130;
+
+    const newHeight =
+        Math.min(
+            messageInput.scrollHeight,
+            maxHeight
+        );
+
+    messageInput.style.height =
+        `${newHeight}px`;
+
+    /*
+     * Up to 5 lines:
+     * no scrollbar.
+     *
+     * More than 5 lines:
+     * only the input scrolls.
+     */
+
+    messageInput.style.overflowY =
+        messageInput.scrollHeight > maxHeight
+            ? "auto"
+            : "hidden";
+}
+
+// ==========================================
 // CURRENT USER
 // ==========================================
 
@@ -219,11 +263,6 @@ function notifyNewMessage(message) {
         return;
     }
 
-    /*
-     * If the user is currently looking at the chat,
-     * don't show a browser notification.
-     */
-
     if (isChatVisible()) {
         return;
     }
@@ -236,21 +275,24 @@ function notifyNewMessage(message) {
         "image"
     ) {
 
-        body = "🖼️ وێنەیەکی نوێت هەیە.";
+        body =
+            "🖼️ وێنەیەکی نوێت هەیە.";
 
     } else if (
         message.media_type ===
         "video"
     ) {
 
-        body = "🎥 ڤیدیۆیەکی نوێت هەیە.";
+        body =
+            "🎥 ڤیدیۆیەکی نوێت هەیە.";
 
     } else if (
         message.media_type ===
         "voice"
     ) {
 
-        body = "🎤 دەنگێکی نوێت هەیە.";
+        body =
+            "🎤 دەنگێکی نوێت هەیە.";
 
     } else if (
         message.message &&
@@ -288,12 +330,6 @@ function notifyIncomingCall(
         return;
     }
 
-    /*
-     * Calls should notify even if the page is visible,
-     * because the incoming-call UI may not be visible
-     * on another browser tab/window.
-     */
-
     const title =
         callType === "video"
             ? "📹 Video Call"
@@ -326,6 +362,7 @@ async function registerPushNotifications() {
         !("serviceWorker" in navigator) ||
         !("PushManager" in window)
     ) {
+
         console.log(
             "Push notifications are not supported."
         );
@@ -570,6 +607,11 @@ function showChat() {
     chatPage.classList.remove(
         "hidden"
     );
+
+    // Resize after chat becomes visible
+    requestAnimationFrame(() => {
+        resizeMessageInput();
+    });
 }
 
 // ==========================================
@@ -657,16 +699,7 @@ loginForm.addEventListener(
 
             createCallUI();
 
-            /*
-             * Ask for notification permission
-             * after successful login.
-             */
-
             await requestNotificationPermission();
-
-            /*
-             * Register push notification.
-             */
 
             registerPushNotifications();
 
@@ -1174,8 +1207,11 @@ function sendMessage() {
         }
     );
 
-    messageInput.value =
-        "";
+    // Clear input
+    messageInput.value = "";
+
+    // Return input to one-line height
+    resizeMessageInput();
 
     messageInput.focus();
 }
@@ -1206,12 +1242,17 @@ messageInput.addEventListener(
 );
 
 // ==========================================
-// TYPING
+// TYPING + AUTO RESIZE
 // ==========================================
 
 messageInput.addEventListener(
     "input",
     () => {
+
+        // IMPORTANT:
+        // Resize only the input.
+        // Do NOT scroll the messages here.
+        resizeMessageInput();
 
         if (
             !currentUser ||
@@ -2638,10 +2679,6 @@ socket.on(
         incomingCallData =
             data;
 
-        /*
-         * Browser notification for incoming call.
-         */
-
         notifyIncomingCall(
             data.callType
         );
@@ -3597,10 +3634,6 @@ socket.on(
 
         scrollMessages();
 
-        /*
-         * 🔔 NEW MESSAGE NOTIFICATION
-         */
-
         notifyNewMessage(
             message
         );
@@ -3950,12 +3983,12 @@ socket.on(
 
         await updateOfflineStatus();
 
-        /*
-         * Make sure push notification is registered
-         * after Socket.IO connection too.
-         */
-
         registerPushNotifications();
+
+        // Make sure input is correct after messages load
+        requestAnimationFrame(() => {
+            resizeMessageInput();
+        });
     }
 );
 
@@ -3984,11 +4017,6 @@ document.addEventListener(
     "visibilitychange",
     () => {
 
-        /*
-         * When user returns to the chat,
-         * mark messages as seen.
-         */
-
         if (
             document.visibilityState ===
             "visible"
@@ -4011,7 +4039,24 @@ document.addEventListener(
                     }
                 );
             }
+
+            // Recalculate input after returning to page
+            requestAnimationFrame(() => {
+                resizeMessageInput();
+            });
         }
+    }
+);
+
+// ==========================================
+// WINDOW RESIZE
+// ==========================================
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        resizeMessageInput();
     }
 );
 
@@ -4079,5 +4124,7 @@ logoutButton.addEventListener(
 // ==========================================
 // START
 // ==========================================
+
+resizeMessageInput();
 
 restoreLogin();
