@@ -1373,10 +1373,7 @@ if (
 // ==========================================
 
 async function uploadMedia(file) {
-    if (
-        !currentUser ||
-        !otherUser
-    ) {
+    if (!currentUser || !otherUser) {
         return;
     }
 
@@ -1406,82 +1403,92 @@ async function uploadMedia(file) {
     ];
 
     if (
-        !allowedImages.includes(
-            file.type
-        ) &&
-        !allowedVideos.includes(
-            file.type
-        ) &&
-        !allowedAudio.includes(
-            file.type
-        )
+        !allowedImages.includes(file.type) &&
+        !allowedVideos.includes(file.type) &&
+        !allowedAudio.includes(file.type)
     ) {
-        alert(
-            "تەنها وێنە، ڤیدیۆ و دەنگ ڕێگەپێدراوە."
-        );
-
+        alert("تەنها وێنە، ڤیدیۆ و دەنگ ڕێگەپێدراوە.");
         return;
     }
 
-    const maxSize =
-        1000 * 1024 * 1024;
+    const maxSize = 1000 * 1024 * 1024;
 
-    if (
-        file.size >
-        maxSize
-    ) {
-        alert(
-            "قەبارەی فایل زۆر گەورەیە."
-        );
-
+    if (file.size > maxSize) {
+        alert("قەبارەی فایل زۆر گەورەیە.");
         return;
     }
 
-    const formData =
-        new FormData();
+    const formData = new FormData();
 
-    formData.append(
-        "media",
-        file
-    );
-
-    formData.append(
-        "senderId",
-        currentUser.id
-    );
-
-    formData.append(
-        "receiverId",
-        otherUser.id
-    );
+    formData.append("media", file);
+    formData.append("senderId", currentUser.id);
+    formData.append("receiverId", otherUser.id);
 
     try {
         if (mediaButton) {
-            mediaButton.disabled =
-                true;
+            mediaButton.disabled = true;
         }
 
-        const response =
-            await fetch(
-                "/api/upload",
-                {
-                    method: "POST",
-                    body: formData
-                }
+        // ================================
+        // UPLOAD PROGRESS
+        // ================================
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.open("POST", "/api/upload", true);
+
+        xhr.upload.addEventListener("progress", event => {
+            if (!event.lengthComputable) {
+                return;
+            }
+
+            const percent = Math.round(
+                (event.loaded / event.total) * 100
             );
 
-        const data =
-            await response.json();
+            console.log(`Upload: ${percent}%`);
 
-        if (
-            !response.ok ||
-            !data.success
-        ) {
+            if (mediaButton) {
+                mediaButton.title = `ناردن ${percent}%`;
+            }
+        });
+
+        const result = await new Promise((resolve, reject) => {
+
+            xhr.onload = () => {
+                try {
+                    const data = JSON.parse(xhr.responseText);
+
+                    resolve({
+                        ok: xhr.status >= 200 && xhr.status < 300,
+                        data
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            xhr.onerror = () => {
+                reject(new Error("Network error"));
+            };
+
+            xhr.onabort = () => {
+                reject(new Error("Upload aborted"));
+            };
+
+            xhr.send(formData);
+        });
+
+        if (!result.ok || !result.data.success) {
             alert(
-                data.message ||
+                result.data.message ||
                 "ناردنی فایل سەرکەوتوو نەبوو."
             );
+
+            return;
         }
+
+        console.log("Upload: 100%");
 
     } catch (error) {
         console.error(
@@ -1495,8 +1502,8 @@ async function uploadMedia(file) {
 
     } finally {
         if (mediaButton) {
-            mediaButton.disabled =
-                false;
+            mediaButton.disabled = false;
+            mediaButton.title = "ناردنی فایل";
         }
     }
 }
