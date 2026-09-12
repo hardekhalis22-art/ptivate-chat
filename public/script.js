@@ -832,19 +832,25 @@ messagesContainer.innerHTML = `
 // SCROLL TO LATEST MESSAGE
 // ==========================================
 
+function scrollMessages(
+    instant = false
+) {
+    if (!messagesContainer) {
+        return;
+    }
 
+    requestAnimationFrame(() => {
+        messagesContainer.scrollTo({
+            top:
+                messagesContainer.scrollHeight,
 
-requestAnimationFrame(() => {
-    messagesContainer.scrollTo({
-        top:
-            messagesContainer.scrollHeight,
-
-        behavior:
-            instant
-                ? "auto"
-                : "smooth"
+            behavior:
+                instant
+                    ? "auto"
+                    : "smooth"
+        });
     });
-}, 150);
+}
 // ==========================================
 // ==========================================
 // MESSAGE DELETE MENU
