@@ -4138,80 +4138,76 @@ window.addEventListener(
     }
 );
 
-```js
+
+// ==========================================
+// LOGOUT
+// ==========================================
 // ==========================================
 // LOGOUT
 // ==========================================
 if (logoutButton) {
-    logoutButton.addEventListener(
-        "click",
-        () => {
-            console.log("Logout button clicked");
+    logoutButton.addEventListener("click", (event) => {
+        event.preventDefault();
 
-            // Stop typing
-            stopTyping();
+        console.log("LOGOUT CLICKED");
 
-            // Cancel voice recording
-            if (isRecordingVoice) {
-                cancelVoiceRecording();
-            }
+        // Stop typing
+        stopTyping();
 
-            // End active call
-            if (
-                currentCallPartnerId &&
-                socket.connected &&
-                currentUser
-            ) {
-                socket.emit(
-                    "call-ended",
-                    {
-                        from: Number(currentUser.id),
-                        to: Number(currentCallPartnerId)
-                    }
-                );
-            }
-
-            // Cleanup WebRTC call
-            cleanupCall();
-
-            // Remove saved login
-            localStorage.removeItem(
-                "privateChatUser"
-            );
-
-            // Clear current user
-            currentUser = null;
-            otherUser = null;
-            otherUserOnline = false;
-            isTyping = false;
-            incomingCallData = null;
-
-            // Disconnect socket
-            if (socket.connected) {
-                socket.disconnect();
-            }
-
-            // Return to login page
-            showLogin();
-
-            // Clear inputs
-            if (usernameInput) {
-                usernameInput.value = "";
-            }
-
-            if (pinInput) {
-                pinInput.value = "";
-            }
-
-            if (loginError) {
-                loginError.textContent = "";
-            }
-
-            console.log("Logout successful");
+        // Cancel voice recording
+        if (isRecordingVoice) {
+            cancelVoiceRecording();
         }
-    );
+
+        // End active call
+        if (
+            currentCallPartnerId &&
+            socket.connected &&
+            currentUser
+        ) {
+            socket.emit("call-ended", {
+                from: Number(currentUser.id),
+                to: Number(currentCallPartnerId)
+            });
+        }
+
+        // Cleanup WebRTC
+        cleanupCall();
+
+        // Remove saved login
+        localStorage.removeItem("privateChatUser");
+
+        // Clear user data
+        currentUser = null;
+        otherUser = null;
+        otherUserOnline = false;
+        isTyping = false;
+        incomingCallData = null;
+
+        // Disconnect socket
+        if (socket.connected) {
+            socket.disconnect();
+        }
+
+        // Show login page
+        showLogin();
+
+        // Clear login inputs
+        if (usernameInput) {
+            usernameInput.value = "";
+        }
+
+        if (pinInput) {
+            pinInput.value = "";
+        }
+
+        if (loginError) {
+            loginError.textContent = "";
+        }
+
+        console.log("LOGOUT SUCCESS");
+    });
 }
-```
 
 
 // ==========================================
