@@ -3061,88 +3061,37 @@ function hideCallUI() {
 // START VOICE CALL
 // ==========================================
 async function startVoiceCall() {
-    if (
-        !currentUser ||
-        !otherUser ||
-        isCallActive
-    ) {
+    if (!currentUser || !otherUser || isCallActive) {
         return;
     }
 
     try {
-        localStream =
-            await navigator.mediaDevices.getUserMedia(
-                {
-                    audio: true,
-                    video: false
-                }
-            );
+        localStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: false
+        });
 
-        currentCallRole =
-            "caller";
+        currentCallRole = "caller";
+        currentCallType = "voice";
+        currentCallPartnerId = Number(otherUser.id);
+        isCallActive = true;
 
-        currentCallType =
-            "voice";
-
-        currentCallPartnerId =
-            Number(
-                otherUser.id
-            );
-
-        isCallActive =
-            true;
-
-        showCallUI(
-            "voice",
-            "Calling..."
-        );
+        showCallUI("voice", "Calling...");
 
         createPeerConnection();
 
-        localStream
-            .getTracks()
-            .forEach(
-                track => {
-                    peerConnection.addTrack(
-                        track,
-                        localStream
-                    );
-                }
-            );
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
 
-        const offer =
-            await peerConnection.createOffer();
-
-        await peerConnection.setLocalDescription(
-            offer
-        );
-
-        socket.emit(
-            "call-user",
-            {
-                from:
-                    Number(
-                        currentUser.id
-                    ),
-
-                to:
-                    Number(
-                        otherUser.id
-                    ),
-
-                callType:
-                    "voice",
-
-                offer
-            }
-        );
+        socket.emit("call-user", {
+            callerId: Number(currentUser.id),
+            receiverId: Number(otherUser.id),
+            callType: "voice"
+        });
 
     } catch (error) {
-        console.error(
-            "Start voice call error:",
-            error
-        );
-
+        console.error("Start voice call error:", error);
         cleanupCall();
     }
 }
@@ -3151,96 +3100,45 @@ async function startVoiceCall() {
 // START VIDEO CALL
 // ==========================================
 async function startVideoCall() {
-    if (
-        !currentUser ||
-        !otherUser ||
-        isCallActive
-    ) {
+    if (!currentUser || !otherUser || isCallActive) {
         return;
     }
 
     try {
-        localStream =
-            await navigator.mediaDevices.getUserMedia(
-                {
-                    audio: true,
-                    video: {
-                        facingMode:
-                            "user"
-                    }
-                }
-            );
+        localStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: true
+        });
 
-        currentCallRole =
-            "caller";
+        currentCallRole = "caller";
+        currentCallType = "video";
+        currentCallPartnerId = Number(otherUser.id);
+        isCallActive = true;
 
-        currentCallType =
-            "video";
-
-        currentCallPartnerId =
-            Number(
-                otherUser.id
-            );
-
-        isCallActive =
-            true;
-
-        showCallUI(
-            "video",
-            "Calling..."
-        );
-
-        if (localVideo) {
-            localVideo.srcObject =
-                localStream;
-        }
+        showCallUI("video", "Calling...");
 
         createPeerConnection();
 
-        localStream
-            .getTracks()
-            .forEach(
-                track => {
-                    peerConnection.addTrack(
-                        track,
-                        localStream
-                    );
-                }
-            );
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
 
-        const offer =
-            await peerConnection.createOffer();
+        const localVideo = document.getElementById("localVideo");
 
-        await peerConnection.setLocalDescription(
-            offer
-        );
+        if (localVideo) {
+            localVideo.srcObject = localStream;
+            localVideo.muted = true;
+            localVideo.play().catch(() => {});
+        }
 
-        socket.emit(
-            "call-user",
-            {
-                from:
-                    Number(
-                        currentUser.id
-                    ),
-
-                to:
-                    Number(
-                        otherUser.id
-                    ),
-
-                callType:
-                    "video",
-
-                offer
-            }
-        );
+        socket.emit("call-user", {
+            callerId: Number(currentUser.id),
+            receiverId: Number(otherUser.id),
+            callType: "video"
+        });
 
     } catch (error) {
-        console.error(
-            "Start video call error:",
-            error
-        );
-
+        console.error("Start video call error:", error);
         cleanupCall();
     }
 }
@@ -3253,203 +3151,146 @@ function createPeerConnection() {
         return;
     }
 
-    peerConnection =
-        new RTCPeerConnection(
-            rtcConfiguration
+    peerConnection = new RTCPeerConnection(
+        rtcConfiguration
+    );
+
+    peerConnection.onicecandidate = event => {
+        if (
+            !event.candidate ||
+            !currentUser ||
+            !currentCallPartnerId
+        ) {
+            return;
+        }
+
+        socket.emit("webrtc-ice-candidate", {
+            senderId: Number(currentUser.id),
+            receiverId: Number(currentCallPartnerId),
+            candidate: event.candidate
+        });
+    };
+
+    peerConnection.ontrack = event => {
+        if (
+            !event.streams ||
+            !event.streams[0]
+        ) {
+            return;
+        }
+
+        remoteStream = event.streams[0];
+
+        if (remoteVideo) {
+            remoteVideo.srcObject = remoteStream;
+            remoteVideo.play().catch(() => {});
+        }
+    };
+
+    peerConnection.onconnectionstatechange = () => {
+        if (!peerConnection) {
+            return;
+        }
+
+        const state = peerConnection.connectionState;
+
+        console.log(
+            "WebRTC connection state:",
+            state
         );
 
-    peerConnection.onicecandidate =
-        event => {
-            if (
-                !event.candidate ||
-                !currentUser ||
-                !currentCallPartnerId
-            ) {
-                return;
+        if (state === "connected") {
+            if (callStatus) {
+                callStatus.textContent = "Connected";
             }
+        }
 
-            socket.emit(
-                "call-ice-candidate",
-                {
-                    from:
-                        Number(
-                            currentUser.id
-                        ),
-
-                    to:
-                        Number(
-                            currentCallPartnerId
-                        ),
-
-                    candidate:
-                        event.candidate
-                }
-            );
-        };
-
-    peerConnection.ontrack =
-        event => {
-            if (
-                !event.streams ||
-                !event.streams[0]
-            ) {
-                return;
-            }
-
-            remoteStream =
-                event.streams[0];
-
-            if (remoteVideo) {
-                remoteVideo.srcObject =
-                    remoteStream;
-            }
-        };
-
-    peerConnection.onconnectionstatechange =
-        () => {
-            if (!peerConnection) {
-                return;
-            }
-
-            const state =
-                peerConnection.connectionState;
-
-            console.log(
-                "WebRTC connection state:",
-                state
-            );
-
-            if (
-                state ===
-                    "connected"
-            ) {
-                if (callStatus) {
-                    callStatus.textContent =
-                        "Connected";
-                }
-            }
-
-            if (
-                state ===
-                    "failed" ||
-                state ===
-                    "closed"
-            ) {
-                cleanupCall();
-            }
-        };
+        if (
+            state === "failed" ||
+            state === "closed"
+        ) {
+            cleanupCall();
+        }
+    };
 }
 
 // ==========================================
 // ACCEPT INCOMING CALL
 // ==========================================
+// ==========================================
+// ACCEPT INCOMING CALL
+// ==========================================
 async function acceptIncomingCall() {
-    if (
-        !incomingCallData ||
-        !currentUser
-    ) {
+    if (!incomingCallData) {
         return;
     }
 
-    const data =
-        incomingCallData;
-
-    incomingCallData =
-        null;
+    const data = incomingCallData;
 
     try {
-        currentCallRole =
-            "receiver";
+        currentCallRole = "receiver";
+        currentCallType = data.callType;
+        currentCallPartnerId = Number(data.callerId);
+        isCallActive = true;
 
-        currentCallType =
-            data.callType;
+        incomingCallData = null;
 
-        currentCallPartnerId =
-            Number(
-                data.from
-            );
-
-        isCallActive =
-            true;
-
-        const constraints =
-            data.callType ===
-                "video"
-                ? {
+        if (data.callType === "video") {
+            localStream =
+                await navigator.mediaDevices.getUserMedia({
                     audio: true,
-                    video: {
-                        facingMode:
-                            "user"
-                    }
-                }
-                : {
-                    audio: true,
-                    video: false
-                };
-
-        localStream =
-            await navigator.mediaDevices.getUserMedia(
-                constraints
-            );
+                    video: true
+                });
+        } else {
+            localStream =
+                await navigator.mediaDevices.getUserMedia({
+                    audio: true
+                });
+        }
 
         showCallUI(
             data.callType,
             "Connecting..."
         );
 
-        if (
-            localVideo &&
-            data.callType ===
-                "video"
-        ) {
-            localVideo.srcObject =
-                localStream;
-        }
-
         createPeerConnection();
 
         localStream
             .getTracks()
-            .forEach(
-                track => {
-                    peerConnection.addTrack(
-                        track,
-                        localStream
-                    );
-                }
-            );
+            .forEach(track => {
+                peerConnection.addTrack(
+                    track,
+                    localStream
+                );
+            });
 
-        await peerConnection.setRemoteDescription(
-            new RTCSessionDescription(
-                data.offer
-            )
-        );
+        const localVideo =
+            document.getElementById("localVideo");
 
-        const answer =
-            await peerConnection.createAnswer();
+        if (
+            localVideo &&
+            data.callType === "video"
+        ) {
+            localVideo.srcObject =
+                localStream;
 
-        await peerConnection.setLocalDescription(
-            answer
-        );
+            localVideo.muted = true;
+
+            localVideo
+                .play()
+                .catch(() => {});
+        }
 
         socket.emit(
-            "call-answer",
+            "accept-call",
             {
-                from:
-                    Number(
-                        currentUser.id
-                    ),
+                callerId:
+                    Number(data.callerId),
 
-                to:
-                    Number(
-                        data.from
-                    ),
-
-                answer
+                receiverId:
+                    Number(data.receiverId)
             }
         );
-
-        await flushPendingIceCandidates();
 
     } catch (error) {
         console.error(
@@ -3494,10 +3335,10 @@ function rejectIncomingCall() {
 }
 
 // ==========================================
-// HANDLE CALL ANSWER
+// WEBRTC ANSWER
 // ==========================================
 socket.on(
-    "call-answer",
+    "webrtc-answer",
     async data => {
         if (
             !peerConnection ||
@@ -3523,7 +3364,7 @@ socket.on(
 
         } catch (error) {
             console.error(
-                "Call answer error:",
+                "WebRTC answer error:",
                 error
             );
 
@@ -3546,37 +3387,20 @@ socket.on(
         }
 
         if (
-            Number(
-                data.to
-            ) !==
-            Number(
-                currentUser.id
-            )
+            Number(data.receiverId) !==
+            Number(currentUser.id)
         ) {
             return;
         }
 
         if (isCallActive) {
-            socket.emit(
-                "call-busy",
-                {
-                    from:
-                        Number(
-                            currentUser.id
-                        ),
-
-                    to:
-                        Number(
-                            data.from
-                        )
-                }
-            );
-
             return;
         }
 
-        incomingCallData =
-            data;
+        incomingCallData = data;
+
+        currentCallPartnerId =
+            Number(data.callerId);
 
         const callerName =
             otherUser
@@ -3584,8 +3408,7 @@ socket.on(
                 : "User";
 
         const callTypeText =
-            data.callType ===
-                "video"
+            data.callType === "video"
                 ? "ڤیدیۆ"
                 : "دەنگ";
 
@@ -3609,8 +3432,11 @@ socket.on(
 // ==========================================
 // HANDLE ICE CANDIDATE
 // ==========================================
+// ==========================================
+// WEBRTC ICE CANDIDATE
+// ==========================================
 socket.on(
-    "call-ice-candidate",
+    "webrtc-ice-candidate",
     async data => {
         if (
             !data ||
@@ -3647,7 +3473,7 @@ socket.on(
             );
         } catch (error) {
             console.error(
-                "ICE candidate error:",
+                "WebRTC ICE candidate error:",
                 error
             );
         }
@@ -4312,6 +4138,7 @@ window.addEventListener(
     }
 );
 
+```js
 // ==========================================
 // LOGOUT
 // ==========================================
@@ -4319,56 +4146,73 @@ if (logoutButton) {
     logoutButton.addEventListener(
         "click",
         () => {
+            console.log("Logout button clicked");
+
+            // Stop typing
             stopTyping();
 
-            if (
-                isRecordingVoice
-            ) {
+            // Cancel voice recording
+            if (isRecordingVoice) {
                 cancelVoiceRecording();
             }
 
+            // End active call
             if (
                 currentCallPartnerId &&
-                socket.connected
+                socket.connected &&
+                currentUser
             ) {
                 socket.emit(
-                    "end-call",
+                    "call-ended",
                     {
-                        callerId:
-                            currentUser.id,
-
-                        receiverId:
-                            currentCallPartnerId
+                        from: Number(currentUser.id),
+                        to: Number(currentCallPartnerId)
                     }
                 );
             }
 
-            closeCallUI();
+            // Cleanup WebRTC call
+            cleanupCall();
 
+            // Remove saved login
             localStorage.removeItem(
                 "privateChatUser"
             );
 
-            currentUser =
-                null;
+            // Clear current user
+            currentUser = null;
+            otherUser = null;
+            otherUserOnline = false;
+            isTyping = false;
+            incomingCallData = null;
 
-            otherUser =
-                null;
-
-            otherUserOnline =
-                false;
-
-            isTyping =
-                false;
-
+            // Disconnect socket
             if (socket.connected) {
                 socket.disconnect();
             }
 
-            location.reload();
+            // Return to login page
+            showLogin();
+
+            // Clear inputs
+            if (usernameInput) {
+                usernameInput.value = "";
+            }
+
+            if (pinInput) {
+                pinInput.value = "";
+            }
+
+            if (loginError) {
+                loginError.textContent = "";
+            }
+
+            console.log("Logout successful");
         }
     );
 }
+```
+
 
 // ==========================================
 // START
