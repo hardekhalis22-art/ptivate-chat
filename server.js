@@ -1,4 +1,3 @@
-
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -134,7 +133,7 @@ if (
 }
 
 // ==========================================
-// DATABASE TEST + PUSH TABLE
+// DATABASE TEST + TABLES
 // ==========================================
 
 async function initializeDatabase() {
@@ -151,7 +150,7 @@ async function initializeDatabase() {
         connection.release();
 
         // --------------------------------------
-        // Push subscriptions table
+        // Push subscriptions
         // --------------------------------------
 
         await db.execute(`
@@ -171,6 +170,51 @@ async function initializeDatabase() {
 
         console.log(
             "✅ Push subscriptions table ready"
+        );
+
+        // --------------------------------------
+        // Delete for me
+        // --------------------------------------
+
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS message_deleted_for_me (
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                message_id BIGINT NOT NULL,
+                user_id INT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                UNIQUE KEY unique_message_user (message_id, user_id),
+                INDEX idx_deleted_message (message_id),
+                INDEX idx_deleted_user (user_id)
+            )
+        `);
+
+        console.log(
+            "✅ message_deleted_for_me table ready"
+        );
+
+        // --------------------------------------
+        // Deleted media archive
+        // --------------------------------------
+
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS deleted_media (
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                message_id BIGINT NOT NULL,
+                sender_id INT NOT NULL,
+                receiver_id INT NOT NULL,
+                media_type VARCHAR(50),
+                media_url TEXT NOT NULL,
+                deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                INDEX idx_deleted_media_sender (sender_id),
+                INDEX idx_deleted_media_receiver (receiver_id),
+                INDEX idx_deleted_media_message (message_id)
+            )
+        `);
+
+        console.log(
+            "✅ deleted_media table ready"
         );
 
     } catch (error) {
@@ -231,8 +275,6 @@ async function savePushSubscription(
 
     try {
 
-        // Remove an older subscription
-        // with the same endpoint first.
         await db.execute(
             `
             DELETE FROM push_subscriptions
@@ -380,7 +422,6 @@ async function sendPushToUser(
                     error.message
                 );
 
-                // Subscription expired / invalid.
                 if (
                     error.statusCode === 404 ||
                     error.statusCode === 410
@@ -943,28 +984,36 @@ app.get(
                 await db.execute(
                     `
                     SELECT
-                        id,
-                        sender_id,
-                        receiver_id,
-                        message,
-                        media_type,
-                        media_url,
-                        created_at,
-                        seen
-                    FROM messages
+                        m.id,
+                        m.sender_id,
+                        m.receiver_id,
+                        m.message,
+                        m.media_type,
+                        m.media_url,
+                        m.created_at,
+                        m.seen
+                    FROM messages m
+                    LEFT JOIN message_deleted_for_me d
+                        ON d.message_id = m.id
+                        AND d.user_id = ?
                     WHERE
+                        d.id IS NULL
+                        AND
                         (
-                            sender_id = ?
-                            AND receiver_id = ?
+                            (
+                                m.sender_id = ?
+                                AND m.receiver_id = ?
+                            )
+                            OR
+                            (
+                                m.sender_id = ?
+                                AND m.receiver_id = ?
+                            )
                         )
-                        OR
-                        (
-                            sender_id = ?
-                            AND receiver_id = ?
-                        )
-                    ORDER BY id ASC
+                    ORDER BY m.id ASC
                     `,
                     [
+                        userId,
                         userId,
                         otherUserId,
                         otherUserId,
@@ -988,6 +1037,371 @@ app.get(
                 success: false,
                 message:
                     "Server error"
+            });
+        }
+    }
+);
+
+// ==========================================
+// DELETE MESSAGE FOR ME
+// ==========================================
+
+app.delete(
+    "/api/messages/:messageId/delete-for-me",
+    async (req, res) => {
+
+        try {
+
+            const messageId =
+                Number(
+                    req.params.messageId
+                );
+
+            const userId =
+                Number(
+                    req.body.userId
+                );
+
+            if (
+                !messageId ||
+                !userId
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid message ID or user ID"
+                });
+            }
+
+            // --------------------------------------
+            // Find message
+            // --------------------------------------
+
+            const [messages] =
+                await db.execute(
+                    `
+                    SELECT
+                        id,
+                        sender_id,
+                        receiver_id
+                    FROM messages
+                    WHERE id = ?
+                    LIMIT 1
+                    `,
+                    [messageId]
+                );
+
+            if (
+                messages.length === 0
+            ) {
+
+                return res.status(404).json({
+                    success: false,
+                    message:
+                        "Message not found"
+                });
+            }
+
+            const message =
+                messages[0];
+
+            // --------------------------------------
+            // Make sure the user belongs to chat
+            // --------------------------------------
+
+            if (
+                Number(message.sender_id) !== userId &&
+                Number(message.receiver_id) !== userId
+            ) {
+
+                return res.status(403).json({
+                    success: false,
+                    message:
+                        "You are not part of this message"
+                });
+            }
+
+            if (
+                !isAllowedPair(
+                    message.sender_id,
+                    message.receiver_id
+                )
+            ) {
+
+                return res.status(403).json({
+                    success: false,
+                    message:
+                        "Users are not allowed"
+                });
+            }
+
+            // --------------------------------------
+            // Save delete-for-me
+            // --------------------------------------
+
+            await db.execute(
+                `
+                INSERT IGNORE INTO message_deleted_for_me
+                (
+                    message_id,
+                    user_id
+                )
+                VALUES (?, ?)
+                `,
+                [
+                    messageId,
+                    userId
+                ]
+            );
+
+            // --------------------------------------
+            // Tell only this user
+            // --------------------------------------
+
+            const socketId =
+                onlineUsers.get(
+                    userId
+                );
+
+            if (socketId) {
+
+                io.to(
+                    socketId
+                ).emit(
+                    "message-deleted-for-me",
+                    {
+                        messageId
+                    }
+                );
+            }
+
+            res.json({
+                success: true,
+                message:
+                    "Message deleted for you"
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Delete message for me error:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message:
+                    "Could not delete message"
+            });
+        }
+    }
+);
+
+// ==========================================
+// DELETE MESSAGE FOR EVERYONE
+// ==========================================
+
+app.delete(
+    "/api/messages/:messageId/delete-for-everyone",
+    async (req, res) => {
+
+        try {
+
+            const messageId =
+                Number(
+                    req.params.messageId
+                );
+
+            const userId =
+                Number(
+                    req.body.userId
+                );
+
+            if (
+                !messageId ||
+                !userId
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid message ID or user ID"
+                });
+            }
+
+            // --------------------------------------
+            // Get message
+            // --------------------------------------
+
+            const [messages] =
+                await db.execute(
+                    `
+                    SELECT
+                        id,
+                        sender_id,
+                        receiver_id,
+                        media_type,
+                        media_url
+                    FROM messages
+                    WHERE id = ?
+                    LIMIT 1
+                    `,
+                    [messageId]
+                );
+
+            if (
+                messages.length === 0
+            ) {
+
+                return res.status(404).json({
+                    success: false,
+                    message:
+                        "Message not found"
+                });
+            }
+
+            const message =
+                messages[0];
+
+            // --------------------------------------
+            // Only sender can delete for everyone
+            // --------------------------------------
+
+            if (
+                Number(message.sender_id) !==
+                userId
+            ) {
+
+                return res.status(403).json({
+                    success: false,
+                    message:
+                        "You can only delete your own message for everyone"
+                });
+            }
+
+            // --------------------------------------
+            // Allowed pair
+            // --------------------------------------
+
+            if (
+                !isAllowedPair(
+                    message.sender_id,
+                    message.receiver_id
+                )
+            ) {
+
+                return res.status(403).json({
+                    success: false,
+                    message:
+                        "Users are not allowed"
+                });
+            }
+
+            // --------------------------------------
+            // Save media before deleting message
+            // IMPORTANT:
+            // Physical file is NOT deleted.
+            // --------------------------------------
+
+            if (
+                message.media_url &&
+                message.media_type
+            ) {
+
+                await db.execute(
+                    `
+                    INSERT INTO deleted_media
+                    (
+                        message_id,
+                        sender_id,
+                        receiver_id,
+                        media_type,
+                        media_url
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                    `,
+                    [
+                        message.id,
+                        message.sender_id,
+                        message.receiver_id,
+                        message.media_type,
+                        message.media_url
+                    ]
+                );
+            }
+
+            // --------------------------------------
+            // Delete message
+            // --------------------------------------
+
+            await db.execute(
+                `
+                DELETE FROM messages
+                WHERE id = ?
+                `,
+                [messageId]
+            );
+
+            // --------------------------------------
+            // Notify sender
+            // --------------------------------------
+
+            const senderSocket =
+                onlineUsers.get(
+                    Number(message.sender_id)
+                );
+
+            if (senderSocket) {
+
+                io.to(
+                    senderSocket
+                ).emit(
+                    "message-deleted-for-everyone",
+                    {
+                        messageId
+                    }
+                );
+            }
+
+            // --------------------------------------
+            // Notify receiver
+            // --------------------------------------
+
+            const receiverSocket =
+                onlineUsers.get(
+                    Number(message.receiver_id)
+                );
+
+            if (receiverSocket) {
+
+                io.to(
+                    receiverSocket
+                ).emit(
+                    "message-deleted-for-everyone",
+                    {
+                        messageId
+                    }
+                );
+            }
+
+            res.json({
+                success: true,
+                message:
+                    "Message deleted for everyone"
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Delete message for everyone error:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message:
+                    "Could not delete message"
             });
         }
     }
@@ -1177,10 +1591,6 @@ app.post(
                 );
 
             } else {
-
-                // ----------------------------------
-                // PUSH FOR OFFLINE USER
-                // ----------------------------------
 
                 let title =
                     "💬 پەیامێکی نوێ";
@@ -1694,10 +2104,6 @@ io.on(
 
                     } else {
 
-                        // ----------------------------------
-                        // PUSH FOR OFFLINE USER
-                        // ----------------------------------
-
                         await sendPushToUser(
                             receiverId,
                             {
@@ -1866,10 +2272,6 @@ io.on(
                             receiverId
                         );
 
-                    // ----------------------------------
-                    // SAVE ACTIVE CALL
-                    // ----------------------------------
-
                     const callKey =
                         getCallKey(
                             callerId,
@@ -1887,10 +2289,6 @@ io.on(
                         }
                     );
 
-                    // ----------------------------------
-                    // ONLINE USER
-                    // ----------------------------------
-
                     if (
                         receiverSocket
                     ) {
@@ -1907,10 +2305,6 @@ io.on(
                         );
 
                     } else {
-
-                        // ----------------------------------
-                        // OFFLINE PUSH CALL
-                        // ----------------------------------
 
                         const isVideo =
                             callType ===
@@ -2573,4 +2967,3 @@ server.listen(
         );
     }
 );
-
