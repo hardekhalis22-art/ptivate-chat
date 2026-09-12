@@ -832,23 +832,37 @@ messagesContainer.innerHTML = `
 // SCROLL TO LATEST MESSAGE
 // ==========================================
 
-function scrollMessages(
-    instant = false
-) {
+// ==========================================
+// SCROLL TO ABSOLUTE BOTTOM
+// ==========================================
+
+function scrollMessages(instant = false) {
     if (!messagesContainer) {
         return;
     }
 
-    requestAnimationFrame(() => {
-        messagesContainer.scrollTo({
-            top:
-                messagesContainer.scrollHeight,
+    const goToBottom = () => {
+        messagesContainer.scrollTop =
+            messagesContainer.scrollHeight;
+    };
 
-            behavior:
-                instant
-                    ? "auto"
-                    : "smooth"
-        });
+    // یەکەم جار
+    requestAnimationFrame(() => {
+        goToBottom();
+
+        // دووبارە دوای تەواوبوونی render
+        setTimeout(() => {
+            goToBottom();
+        }, 100);
+
+        // بۆ media / image / video
+        setTimeout(() => {
+            goToBottom();
+        }, 300);
+
+        setTimeout(() => {
+            goToBottom();
+        }, 600);
     });
 }
 // ==========================================
